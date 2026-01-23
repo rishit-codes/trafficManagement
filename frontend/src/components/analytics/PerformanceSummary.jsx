@@ -1,11 +1,47 @@
 import React from 'react';
 
-const PerformanceSummary = () => {
+const PerformanceSummary = ({ data, loading }) => {
+  if (loading) {
+     return <div className="summary-grid loading-state">Loading performance metrics...</div>;
+  }
+
+  if (!data) {
+     return (
+        <div className="analytics-card empty-state" style={{ padding: '24px', textAlign: 'center', color: '#6B7280' }}>
+            Analytics data not yet available for this junction.
+        </div>
+     );
+  }
+
+  // Map backend response to UI cards
+  // Expecting backend to return object like { avg_wait: -15, spillback: -32, ... }
+  // Only displaying what is actually returned.
+  
   const metrics = [
-    { label: 'Avg Wait Time', value: '-15%', sub: 'vs. fixed-time baseline' },
-    { label: 'Spillback Events', value: '-32%', sub: 'congestion reduction' },
-    { label: 'Vehicle Throughput', value: '+18%', sub: 'efficiency gain' },
-    { label: 'Signal Green Efficiency', value: '91%', sub: 'active green utilization' },
+    { 
+        label: 'Avg Wait Time', 
+        value: data.avg_wait_reduction != null ? `${data.avg_wait_reduction > 0 ? '-' : '+'}${Math.abs(data.avg_wait_reduction)}%` : '--', 
+        sub: 'vs. fixed-time baseline',
+        good: data.avg_wait_reduction > 0 // Positive reduction is good
+    },
+    { 
+        label: 'Spillback Events', 
+        value: data.spillback_reduction != null ? `${data.spillback_reduction > 0 ? '-' : '+'}${Math.abs(data.spillback_reduction)}%` : '--', 
+        sub: 'congestion reduction',
+        good: data.spillback_reduction > 0
+    },
+    { 
+        label: 'Vehicle Throughput', 
+        value: data.throughput_increase != null ? `+${data.throughput_increase}%` : '--', 
+        sub: 'efficiency gain',
+        good: true
+    },
+    { 
+        label: 'Signal Green Efficiency', 
+        value: data.green_efficiency != null ? `${data.green_efficiency}%` : '--', 
+        sub: 'active green utilization',
+        good: true
+    },
   ];
 
   return (
@@ -15,7 +51,7 @@ const PerformanceSummary = () => {
           <span className="summary-label">{m.label}</span>
           <span 
             className="summary-value" 
-            style={{ color: m.value.startsWith('-') || m.value.startsWith('+') || m.value > '90' ? '#059669' : '#1E40AF' }}
+            style={{ color: m.value !== '--' && m.good ? '#059669' : (m.value !== '--' ? '#B91C1C' : '#6B7280') }}
           >
             {m.value}
           </span>

@@ -1,19 +1,20 @@
 import React from 'react';
 import VideoCard from './VideoCard';
-import './LiveMonitoring.css';
 
-const VideoGrid = ({ cameras = [] }) => {
-  // Fallback if no props provided (though parent provides them now)
-  const junctions = cameras.length > 0 ? cameras : [
-    { id: 1, name: 'Alkapuri Circle', status: 'optimal', phase: 'Green (N-S)', queue: 'Low', flow: 0.8 },
-    { id: 2, name: 'Market Cross', status: 'warning', phase: 'Red (All)', queue: 'Med', flow: 0.6 },
-    { id: 3, name: 'Station Road', status: 'critical', phase: 'Green (E-W)', queue: 'High', flow: 0.4 },
-  ];
+const VideoGrid = ({ cameras }) => {
+  if (!cameras || cameras.length === 0) {
+    return <div className="no-feeds">No video feeds available</div>;
+  }
 
   return (
     <div className="video-grid">
-      {junctions.map((j) => (
-        <VideoCard key={j.id} junction={j} />
+      {cameras.map((cam) => (
+        <VideoCard 
+            key={cam.id} 
+            id={cam.id}
+            name={cam.name}
+            src={cam.src}
+        />
       ))}
     </div>
   );

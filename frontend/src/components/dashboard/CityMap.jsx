@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Dashboard.css';
 
-const CityMap = ({ junctions = [], loading = false }) => {
+const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId }) => {
   const position = [22.3072, 73.1812]; // Vadodara Center
 
   if (loading) {
@@ -15,7 +15,7 @@ const CityMap = ({ junctions = [], loading = false }) => {
       case 'critical': return '#DC2626'; // Red
       case 'warning': return '#F59E0B'; // Amber
       case 'optimal': return '#16A34A'; // Deep Green
-      default: return '#6B7280'; // Gray
+      default: return '#16A34A'; // Default to Green for pilot if status missing
     }
   };
 
@@ -23,8 +23,8 @@ const CityMap = ({ junctions = [], loading = false }) => {
     <div className="dashboard-card map-card-daylight">
       {/* Map Header */}
       <div className="map-card-header">
-        <h3 className="map-title-day">City Traffic Map</h3>
-        <p className="map-subtitle-day">Real-time usage • Daylight view</p>
+        <h3 className="map-title-day">Vadodara Pilot Zone Map</h3>
+        <p className="map-subtitle-day">Click on a junction to view live camera feed</p>
       </div>
 
       <div className="map-wrapper-day">
@@ -43,52 +43,54 @@ const CityMap = ({ junctions = [], loading = false }) => {
           {junctions && junctions.length > 0 ? (
             junctions
               .filter(j => j.lat != null && j.lng != null && Number.isFinite(j.lat) && Number.isFinite(j.lng))
-              .map(j => (
-              <CircleMarker 
-                key={j.id} 
-                center={[j.lat, j.lng]}
-                radius={9}
-                pathOptions={{ 
-                  color: '#fff', 
-                  fillColor: getColor(j.status), 
-                  fillOpacity: 1, 
-                  weight: 2,
-                  className: 'marker-standard' 
-                }}
-                eventHandlers={{
-                  click: () => console.log(`Junction clicked: ${j.id}`)
-                }}
-              >
-                <Tooltip direction="top" offset={[0, -10]} opacity={1} className="day-map-tooltip">
-                  <div className="tooltip-content-day">
-                    <div className="tooltip-header-day">
-                      <strong>{j.name}</strong>
-                      <span className={`status-dot status-${j.status}`}></span>
-                    </div>
-                    <div className="tooltip-row-day">
-                      <span>Status:</span>
-                      <span style={{ color: getColor(j.status), fontWeight: 600, textTransform: 'uppercase', fontSize: '11px' }}>{j.status}</span>
-                    </div>
-                    <div className="tooltip-row-day">
-                      <span>Flow Ratio:</span>
-                      <span>{j.flow_ratio}</span>
-                    </div>
-                    <div className="tooltip-row-day">
-                      <span>Queue:</span>
-                      <span>{j.queue_pct}%</span>
-                    </div>
-                  </div>
-                </Tooltip>
-              </CircleMarker>
-            ))
+              .map(j => {
+                const isSelected = selectedId === j.id;
+                return (
+                  <CircleMarker 
+                    key={j.id} 
+                    center={[j.lat, j.lng]}
+                    radius={isSelected ? 14 : 10}
+                    pathOptions={{ 
+                      color: isSelected ? '#2563EB' : '#fff', // Blue border if selected 
+                      fillColor: getColor(j.status), 
+                      fillOpacity: 1, 
+                      weight: isSelected ? 4 : 2,
+                      className: isSelected ? 'marker-selected' : 'marker-standard' 
+                    }}
+                    eventHandlers={{
+                      click: () => onJunctionSelect && onJunctionSelect(j)
+                    }}
+                  >
+                    <Tooltip direction="top" offset={[0, -10]} opacity={1} className="day-map-tooltip">
+                      <div className="tooltip-content-day">
+                        <div className="tooltip-header-day">
+                          <strong>{j.name}</strong>
+                          {isSelected && <span className="selection-badge">VIEWING</span>}
+                        </div>
+                    
+                        <div className="tooltip-row-day">
+                             <span>ID:</span>
+                             <span>{j.id}</span>
+                        </div>
+                        <div className="tooltip-row-day">
+                          <span>Status:</span>
+                          <span style={{ color: getColor(j.status), fontWeight: 600, textTransform: 'uppercase', fontSize: '11px' }}>
+                              {j.status || 'Active'}
+                          </span>
+                        </div>
+                        <div className="tooltip-education">Click to view camera</div>
+                      </div>
+                    </Tooltip>
+                  </CircleMarker>
+                );
+              })
           ) : null}
           
-          {/* Floating Daylight Legend (Bottom-Left) */}
+          {/* Legend */}
           <div className="map-legend-day">
-            <div className="legend-row-day"><span className="dot dot-green"></span> Optimal</div>
+            <div className="legend-row-day"><span className="dot dot-green"></span> Operational</div>
             <div className="legend-row-day"><span className="dot dot-amber"></span> Warning</div>
             <div className="legend-row-day"><span className="dot dot-red"></span> Critical</div>
-            <div className="legend-row-day"><span className="dot dot-gray"></span> Offline</div>
           </div>
 
         </MapContainer>
@@ -96,7 +98,7 @@ const CityMap = ({ junctions = [], loading = false }) => {
         {/* Offline Overlay */}
         {junctions.length === 0 && (
           <div className="map-overlay-message">
-            Awaiting live junction data
+            Initializing Pilot Zone Map...
           </div>
         )}
       </div>

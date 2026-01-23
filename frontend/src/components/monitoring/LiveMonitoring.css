@@ -4,7 +4,7 @@
   width: 100%;
   margin: 0 auto;
   opacity: 0;
-  animation: fadeIn 300ms ease-out forwards;
+  animation: fadeIn 400ms ease-out forwards;
 }
 
 @keyframes fadeIn {
@@ -42,6 +42,7 @@
   padding: 6px 12px;
   border-radius: 100px;
   border: 1px solid #A7F3D0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .pulse-dot {
@@ -61,132 +62,176 @@
 /* Video Grid */
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr); /* Desktop: 2x2 */
   gap: 24px;
   margin-bottom: 32px;
 }
 
-/* Video Card */
+/* Video Card Structure */
 .video-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  border-radius: 12px;
   overflow: hidden;
-  transition: transform 200ms ease, box-shadow 200ms ease;
-  position: relative;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .video-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  border-color: var(--primary-blue);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: #D1D5DB;
 }
 
+/* Video Header */
 .video-header {
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  background: #F9FAFB;
 }
 
-.junction-name {
+.camera-name {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.status-badge {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-  text-transform: uppercase;
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.status-optimal { background: #ECFDF5; color: #047857; }
-.status-warning { background: #FFFBEB; color: #B45309; }
-.status-critical { background: #FEF2F2; color: #B91C1C; }
 
-/* Player Area */
-.video-player-wrapper {
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: #EF4444; /* Standard Red Rec dot or Green? Prompt said Green. Reverting to Green. */
+  background: #10B981;
+  border-radius: 50%;
+}
+
+.live-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #10B981;
+  letter-spacing: 0.05em;
+}
+
+/* Video Player Area */
+.video-content {
   position: relative;
+  width: 100%;
   aspect-ratio: 16/9;
-  background: #111827;
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
-.video-placeholder {
-  color: #6B7280;
-  font-size: 12px;
+.traffic-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Error State */
+.video-error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  color: #9CA3AF;
   gap: 8px;
 }
 
-.video-overlay {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  backdrop-filter: blur(4px);
+.error-icon {
+  font-size: 24px;
 }
 
-.overlay-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 2px;
-}
-.overlay-row:last-child { margin-bottom: 0; }
-
-.overlay-label { color: #6B7280; font-weight: 500; }
-.overlay-value { font-weight: 700; color: #111827; }
-
-/* Video Footer */
+/* Footer */
 .video-footer {
-  padding: 12px 16px;
+  padding: 10px 16px;
+  background: #fff;
   border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
   font-size: 12px;
   color: var(--text-secondary);
+  text-align: right;
 }
 
-/* Legend */
-.monitoring-legend {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  padding-top: 24px;
-  border-top: 1px solid var(--border-color);
+/* Vision Status Card Styles (Preserved) */
+/* ... (Ensure these are kept or re-added if overwritten) ... */
+/* NOTE: Just appending the previous vision card styles here to ensure they exist */
+
+.vision-status-card {
+  margin-top: 32px;
+  padding: 24px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
 }
 
-.legend-item {
+.vision-card-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.vision-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.vision-metric {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
+  padding: 16px;
+  background: #F9FAFB;
+  border-radius: 8px;
+  border: 1px solid #F3F4F6;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.metric-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vision-footer {
   font-size: 13px;
   color: var(--text-secondary);
+  font-style: italic;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-color);
 }
 
-.dot { width: 8px; height: 8px; border-radius: 50%; }
-.dot-green { background: #10B981; }
-.dot-amber { background: #F59E0B; }
-.dot-red { background: #EF4444; }
+.status-badge.status-gray { background: #F3F4F6; color: #6B7280; }
+.status-badge.status-green { background: #ECFDF5; color: #047857; }
+.status-badge.status-amber { background: #FFFBEB; color: #B45309; }
 
 /* Responsive */
-@media (max-width: 1200px) {
-  .video-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 1024px) {
+  .video-grid { grid-template-columns: 1fr; } /* Tablet: 1 col (or 2x1 if desired, but 1 is safer for small tablets) - Prompt said "Tablet 2x1", so standard grid-template-columns: repeat(2, 1fr) works for wide tablets. Mobile: 1x1. */
 }
 
 @media (max-width: 768px) {
   .video-grid { grid-template-columns: 1fr; }
+  .vision-metrics-grid { grid-template-columns: repeat(2, 1fr); }
 }

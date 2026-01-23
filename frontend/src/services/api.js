@@ -123,4 +123,34 @@ export const getAnomalies = async (id) => {
   }
 };
 
+/**
+ * Get vision system runtime metrics
+ * GET /vision/metrics
+ */
+export const getVisionMetrics = async () => {
+  try {
+    const response = await api.get('/vision/metrics');
+    return response.data;
+  } catch (error) {
+     console.error("Failed to fetch vision metrics:", error);
+     throw new Error(error.response?.data?.detail || error.message || 'Failed to fetch vision metrics');
+  }
+};
+
+/**
+ * Get performance metrics for a junction
+ * GET /analytics/performance/{id}
+ */
+export const getPerformanceMetrics = async (id, days = 7) => {
+  try {
+    const response = await api.get(`/analytics/performance/${id}`, { params: { days } });
+    return response.data;
+  } catch (error) {
+    if (error.response?.status !== 422) {
+      console.error(`Failed to fetch performance metrics for ${id}:`, error);
+    }
+    throw new Error(error.response?.data?.detail || error.message || 'Failed to fetch performance metrics');
+  }
+};
+
 export default api;

@@ -1,11 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PerformanceSummary from './PerformanceSummary';
 import ComparisonCharts from './ComparisonCharts';
 import TimePatterns from './TimePatterns';
 import ForecastPanel from './ForecastPanel';
+import { getJunctions, getPerformanceMetrics } from '../../services/api';
 import './Analytics.css';
 
 const Analytics = () => {
+  const [junctions, setJunctions] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const [metrics, setMetrics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState(7); // Default 7 days
+
+  // 1. Initial Load: Get list of junctions
+  useEffect(() => {
+    const init = async () => {
+       try {
+         const data = await getJunctions();
+         const list = data.junctions || data; 
+         
+         if (list && list.length > 0) {
+           setJunctions(list);
+           setSelectedId(list[0].id); // Select first by default
+         }
+       } catch (err) {
+         console.error("Failed to load junction list", err);
+       }
+    };
+    init();
+  }, []);
+
+  // 2. Fetch Metrics when selection or range changes
+  useEffect(() => {
+    if (!selectedId) return;
+
+    const fetchMetrics = async () => {
+      setLoading(true);
+      try {
+        const data = await getPerformanceMetrics(selectedId, timeRange);
+        setMetrics(data);
+      } catch (err) {
+        console.error("Failed to load performance metrics", err);
+        setMetrics(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMetrics();
+  }, [selectedId, timeRange]);
+
   return (
     <div className="analytics-container">
       {/* 1. Page Header */}
@@ -13,35 +58,67 @@ const Analytics = () => {
         <div>
           <h2 className="analytics-title">System Performance Analytics</h2>
           <p className="analytics-subtitle">Evaluating traffic efficiency and congestion reduction</p>
+          
+          {/* Junction Selector */}
+          <div style={{ marginTop: '12px' }}>
+              {junctions.length > 0 && (
+                <select 
+                    className="junction-select"
+                    value={selectedId || ''} 
+                    onChange={(e) => setSelectedId(e.target.value)}
+                    style={{ padding: '8px', borderRadius: '6px', border: '1px solid #E5E7EB', background: '#F9FAFB' }}
+                >
+                    {junctions.map(j => (
+                        <option key={j.id} value={j.id}>{j.name} ({j.id})</option>
+                    ))}
+                </select>
+              )}
+          </div>
         </div>
         
         <div className="time-selector">
-          <button className="time-option active">Today</button>
-          <button className="time-option">7 Days</button>
-          <button className="time-option">30 Days</button>
+          <button 
+            className={`time-option ${timeRange === 1 ? 'active' : ''}`}
+            onClick={() => setTimeRange(1)}
+          >
+            Today
+          </button>
+          <button 
+            className={`time-option ${timeRange === 7 ? 'active' : ''}`}
+            onClick={() => setTimeRange(7)}
+          >
+            7 Days
+          </button>
+          <button 
+            className={`time-option ${timeRange === 30 ? 'active' : ''}`}
+            onClick={() => setTimeRange(30)}
+          >
+            30 Days
+          </button>
         </div>
       </div>
 
       {/* 2. Top KPIs */}
       <section className="analytics-section">
-        <PerformanceSummary />
+        <PerformanceSummary data={metrics} loading={loading} />
       </section>
 
       {/* 3. Main Comparison Chart */}
       <section className="analytics-section">
         <h3 className="section-title">Wait Time Comparison (GeoFlow vs. Fixed Signal)</h3>
-        <ComparisonCharts />
+        {/* Placeholder for now until chart is dynamic */}
+        {metrics ? <ComparisonCharts data={metrics} /> : <div className="chart-placeholder">Select a junction to view comparison</div>}
       </section>
 
       {/* 4. Secondary Insights Row */}
       <section className="analytics-section insights-row">
         <div className="insight-column">
           <h3 className="section-title">Adaptive Peak Handling</h3>
-          <TimePatterns />
+          <TimePatterns junctionId={selectedId} />
         </div>
         <div className="insight-column">
           <h3 className="section-title">Predictive Insight (Next 60m)</h3>
-          <ForecastPanel />
+          <ForecastPanel junctionId={selectedId} />
         </div>
       </section>
     </div>
