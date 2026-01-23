@@ -1,0 +1,56 @@
+:root {
+  /* Core Colors */
+  --color-bg-dark: #0f1115;
+  --color-bg-card: #181b21;
+  --color-bg-overlay: rgba(15, 17, 21, 0.85);
+
+  /* Brand Colors */
+  --color-primary: #00f2ea;
+  --color-secondary: #7000ff;
+  --color-accent: #ff0055;
+
+  /* Traffic Signal Colors */
+  --color-signal-red: #ff3b30;
+  --color-signal-yellow: #ffcc00;
+  --color-signal-green: #34c759;
+
+  /* Text Colors */
+  --color-text-main: #ffffff;
+  --color-text-muted: #8b9bb4;
+  --color-text-dim: #546076;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  /* Typography */
+  --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+
+  /* Borders & Shadows */
+  --border-radius-sm: 6px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 18px;
+  --border-radius-full: 9999px;
+  
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-glow-green: 0 0 20px rgba(52, 199, 89, 0.4);
+  --shadow-glow-red: 0 0 20px rgba(255, 59, 48, 0.4);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
