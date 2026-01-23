@@ -13,7 +13,7 @@ import os
 import sys
 from pathlib import Path
 from contextlib import asynccontextmanager
-from typing import Dict
+from typing import Dict, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -375,18 +375,21 @@ async def get_traffic_patterns(junction_id: str, pattern_type: str = "hourly"):
 
 
 @app.get("/analytics/anomalies/{junction_id}", tags=["Analytics"])
-async def detect_anomalies(junction_id: str, current_pcu: float, direction: str = None):
+async def detect_anomalies(junction_id: str, current_pcu: Optional[float] = None, direction: Optional[str] = None):
     """
     Detect if current traffic is anomalous.
     
     Args:
         junction_id: Junction to analyze
-        current_pcu: Current PCU value
+        current_pcu: Current PCU value. If None, returns empty list (no anomaly check).
         direction: Traffic direction (optional)
     
     Returns:
-        Anomaly detection results
+        Anomaly detection results or empty list
     """
+    if current_pcu is None:
+        return []
+
     result = analytics.detect_anomaly(
         junction_id=junction_id,
         current_pcu=current_pcu,

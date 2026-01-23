@@ -9,9 +9,9 @@ const Header = () => {
       </div>
 
       <div className="header-right">
-        <div className="status-pill">
+        <div className="status-pill status-live">
           <span className="status-dot"></span>
-          Backend Offline (Demo)
+          Live system active
         </div>
         <div className="user-avatar">
           OP

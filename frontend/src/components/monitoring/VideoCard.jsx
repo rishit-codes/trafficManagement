@@ -2,39 +2,72 @@ import React from 'react';
 import JunctionStatusOverlay from './JunctionStatusOverlay';
 import './LiveMonitoring.css';
 
+// Backend should expose samples folder via:
+// app.mount("/videos", StaticFiles(directory="samples"), name="videos")
+
 const VideoCard = ({ junction }) => {
-  // Using a sample sample video URL logic or placeholder
-  // In a real scenario, this would point to a stream URL
-  const demoVideoUrl = "https://www.w3schools.com/html/mov_bbb.mp4"; // Placeholder sample
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [hasError, setHasError] = React.useState(false);
+  const videoRef = React.useRef(null);
+
+  const videoUrl = `http://localhost:8000/videos/${junction.video}`;
+
+  const handleLoadedData = () => {
+    setIsPlaying(true);
+    setHasError(false);
+  };
+
+  const handleError = () => {
+    setHasError(true);
+    setIsPlaying(false);
+  };
 
   return (
     <div className="video-card">
       <div className="video-header">
         <span className="junction-name">{junction.name}</span>
-        <span className={`status-badge status-${junction.status}`}>
-          {junction.status}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+             {/* Live indicator only if playing and no error */}
+             {isPlaying && !hasError && (
+                 <span className="live-indicator">
+                    <span className="pulse-dot-small"></span> LIVE
+                 </span>
+             )}
+            <span className={`status-badge status-${junction.status}`}>
+            {junction.status}
+            </span>
+        </div>
       </div>
 
       <div className="video-player-wrapper">
-        {/* Using a placeholder message instead of actual video to prevent bandwidth issues in this environment, 
-            but structure supports video tag. Uncomment video tag below to use actual video. */}
-        <div className="video-placeholder">
-           <div style={{ fontSize: '24px' }}>📹</div>
-           <div>Live Feed Restricted</div>
-           <div style={{ fontSize: '10px' }}>Demo Mode</div>
-        </div>
-        
-        {/* 
-        <video 
-          src={demoVideoUrl} 
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        /> 
-        */}
+        {hasError ? (
+            <div className="video-placeholder error-state">
+                <div style={{ fontSize: '24px', color: '#6b7280' }}>📹</div>
+                <div style={{ color: '#9ca3af' }}>Feed unavailable</div>
+                <div style={{ fontSize: '10px', color: '#4b5563' }}>OFFLINE</div>
+            </div>
+        ) : (
+             <>
+                {!isPlaying && (
+                    <div className="video-placeholder loading-state">
+                        <div className="spinner"></div>
+                        <div style={{ fontSize: '12px', marginTop: '8px' }}>Connecting to live feed...</div>
+                    </div>
+                )}
+                <video 
+                  ref={videoRef}
+                  src={videoUrl} 
+                  autoPlay 
+                  muted 
+                  loop 
+                  playsInline
+                  preload="metadata"
+                  onLoadedData={handleLoadedData}
+                  onError={handleError}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: isPlaying ? 'block' : 'none' }}
+                /> 
+            </>
+        )}
 
         <JunctionStatusOverlay 
           phase={junction.phase} 

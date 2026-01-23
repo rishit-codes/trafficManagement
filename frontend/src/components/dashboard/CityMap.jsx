@@ -1,69 +1,104 @@
 import React from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Dashboard.css';
 
-const CityMap = () => {
+const CityMap = ({ junctions = [], loading = false }) => {
   const position = [22.3072, 73.1812]; // Vadodara Center
 
-  const junctions = [
-    { id: 1, name: 'Market Rd / 4th Ave', pos: [22.3072, 73.1812], status: 'critical', flow: 1.2 },
-    { id: 2, name: 'Main St / Central', pos: [22.3100, 73.1850], status: 'warning', flow: 0.85 },
-    { id: 3, name: 'Tech Park East', pos: [22.3050, 73.1780], status: 'warning', flow: 0.9 },
-    { id: 4, name: 'North Ring Road', pos: [22.3150, 73.1800], status: 'optimal', flow: 0.4 },
-    { id: 5, name: 'South Gate', pos: [22.2980, 73.1820], status: 'optimal', flow: 0.3 },
-  ];
+  if (loading) {
+     return <div className="dashboard-card map-card-daylight" style={{display:'flex', alignItems:'center', justifyContent:'center'}}>Loading Map Data...</div>;
+  }
 
   const getColor = (status) => {
     switch (status) {
-      case 'critical': return '#DC2626';
-      case 'warning': return '#D97706';
-      case 'optimal': return '#059669';
-      default: return '#9CA3AF';
+      case 'critical': return '#DC2626'; // Red
+      case 'warning': return '#F59E0B'; // Amber
+      case 'optimal': return '#16A34A'; // Deep Green
+      default: return '#6B7280'; // Gray
     }
   };
 
   return (
-    <div className="dashboard-card map-container-card">
-      <div className="map-wrapper">
-        <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
+    <div className="dashboard-card map-card-daylight">
+      {/* Map Header */}
+      <div className="map-card-header">
+        <h3 className="map-title-day">City Traffic Map</h3>
+        <p className="map-subtitle-day">Real-time usage • Daylight view</p>
+      </div>
+
+      <div className="map-wrapper-day">
+        <MapContainer 
+          center={position} 
+          zoom={13} 
+          scrollWheelZoom={false}
+          style={{ height: '520px', width: '100%', background: '#E5E7EB' }}
+        >
+          {/* OSM HOT Tiles (Natural Colors) */}
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, HOT'
+            url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
           />
           
-          {junctions.map(j => (
-            <CircleMarker 
-              key={j.id} 
-              center={j.pos}
-              radius={8}
-              pathOptions={{ 
-                color: '#fff', 
-                fillColor: getColor(j.status), 
-                fillOpacity: 1, 
-                weight: 2 
-              }}
-              eventHandlers={{
-                click: () => console.log(`Junction clicked: ${j.id}`)
-              }}
-            >
-              <Tooltip direction="top" offset={[0, -8]} opacity={1}>
-                <div className="map-tooltip">
-                  <strong>{j.name}</strong>
-                  <div style={{ color: getColor(j.status), textTransform: 'capitalize' }}>
-                    ● {j.status}
+          {junctions && junctions.length > 0 ? (
+            junctions
+              .filter(j => j.lat != null && j.lng != null && Number.isFinite(j.lat) && Number.isFinite(j.lng))
+              .map(j => (
+              <CircleMarker 
+                key={j.id} 
+                center={[j.lat, j.lng]}
+                radius={9}
+                pathOptions={{ 
+                  color: '#fff', 
+                  fillColor: getColor(j.status), 
+                  fillOpacity: 1, 
+                  weight: 2,
+                  className: 'marker-standard' 
+                }}
+                eventHandlers={{
+                  click: () => console.log(`Junction clicked: ${j.id}`)
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -10]} opacity={1} className="day-map-tooltip">
+                  <div className="tooltip-content-day">
+                    <div className="tooltip-header-day">
+                      <strong>{j.name}</strong>
+                      <span className={`status-dot status-${j.status}`}></span>
+                    </div>
+                    <div className="tooltip-row-day">
+                      <span>Status:</span>
+                      <span style={{ color: getColor(j.status), fontWeight: 600, textTransform: 'uppercase', fontSize: '11px' }}>{j.status}</span>
+                    </div>
+                    <div className="tooltip-row-day">
+                      <span>Flow Ratio:</span>
+                      <span>{j.flow_ratio}</span>
+                    </div>
+                    <div className="tooltip-row-day">
+                      <span>Queue:</span>
+                      <span>{j.queue_pct}%</span>
+                    </div>
                   </div>
-                  <div>Flow: {j.flow}</div>
-                </div>
-              </Tooltip>
-            </CircleMarker>
-          ))}
+                </Tooltip>
+              </CircleMarker>
+            ))
+          ) : null}
+          
+          {/* Floating Daylight Legend (Bottom-Left) */}
+          <div className="map-legend-day">
+            <div className="legend-row-day"><span className="dot dot-green"></span> Optimal</div>
+            <div className="legend-row-day"><span className="dot dot-amber"></span> Warning</div>
+            <div className="legend-row-day"><span className="dot dot-red"></span> Critical</div>
+            <div className="legend-row-day"><span className="dot dot-gray"></span> Offline</div>
+          </div>
+
         </MapContainer>
-      </div>
-      <div className="map-legend">
-        <div className="legend-item"><span className="dot dot-green"></span> Optimal</div>
-        <div className="legend-item"><span className="dot dot-amber"></span> Warning</div>
-        <div className="legend-item"><span className="dot dot-red"></span> Critical</div>
+        
+        {/* Offline Overlay */}
+        {junctions.length === 0 && (
+          <div className="map-overlay-message">
+            Awaiting live junction data
+          </div>
+        )}
       </div>
     </div>
   );

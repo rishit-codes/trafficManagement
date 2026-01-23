@@ -14,12 +14,19 @@ const LiveMonitoring = () => {
         
         <div className="live-badge">
           <span className="pulse-dot"></span>
-          LIVE FEED • DEMO
+          LIVE FEED • CONNECTED
         </div>
       </div>
 
       {/* 2. Video Wall */}
-      <VideoGrid />
+      <VideoGrid cameras={[
+          { id: 'J001', name: 'Alkapuri Circle', status: 'optimal', phase: 'Green (N-S)', queue: 'Low', flow: 0.8, video: 'junction1.mp4' },
+          { id: 'J002', name: 'Market Cross', status: 'warning', phase: 'Red (All)', queue: 'Med', flow: 0.6, video: 'junction2.mp4' },
+          { id: 'J003', name: 'Station Road', status: 'critical', phase: 'Green (E-W)', queue: 'High', flow: 0.4, video: 'junction3.mp4' },
+          { id: 'J004', name: 'Tech Park East', status: 'optimal', phase: 'Red', queue: 'Low', flow: 0.9, video: 'junction4.mp4' },
+          { id: 'J005', name: 'North Ring Road', status: 'optimal', phase: 'Green (S-Turn)', queue: 'Low', flow: 0.85, video: 'junction1.mp4' },
+          { id: 'J006', name: 'City Hospital', status: 'warning', phase: 'Yellow', queue: 'Med', flow: 0.7, video: 'junction2.mp4' },
+      ]} />
 
       {/* 3. Legend */}
       <div className="monitoring-legend">

@@ -36,7 +36,7 @@ const Sidebar = ({ currentView, onNavigate }) => {
       </nav>
 
       <div className="sidebar-footer">
-        Demo Mode
+        v1.0.0 Alpha
       </div>
     </aside>
   );
