@@ -6,7 +6,7 @@ const VideoCard = ({ id, name, src }) => {
 
   const handleError = () => {
     setHasError(true);
-    console.warn(`Failed to load video source: ${src}`);
+    // console.warn(`Failed to load video source: ${src}`); // Suppressed for cleaner logs
   };
 
   const handleLoadedData = () => {
@@ -39,7 +39,7 @@ const VideoCard = ({ id, name, src }) => {
         ) : (
           <div className="video-error-state">
             <div className="error-icon">☒</div>
-            <p>Live feed unavailable</p>
+            <p>Live feed unavailable for this junction</p>
           </div>
         )}
       </div>
