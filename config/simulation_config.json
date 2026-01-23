@@ -1,0 +1,67 @@
+{
+  "simulation": {
+    "description": "SUMO simulation configuration for Vadodara traffic management system",
+    "step_length_s": 1.0,
+    "update_interval_s": 5,
+    "default_duration_s": 3600,
+    "gui_enabled": false,
+    "random_seed": 42
+  },
+  "scenarios": {
+    "peak": {
+      "name": "Morning Peak Hour",
+      "demand_file": "simulation/demand/vadodara_peak.rou.xml",
+      "duration_s": 3600,
+      "description": "8-9 AM typical weekday traffic",
+      "expected_vph_per_junction": 1200
+    },
+    "offpeak": {
+      "name": "Off-Peak",
+      "demand_file": "simulation/demand/vadodara_offpeak.rou.xml",
+      "duration_s": 3600,
+      "description": "Midday light to moderate traffic",
+      "expected_vph_per_junction": 780
+    },
+    "night": {
+      "name": "Night Time",
+      "demand_file": "simulation/demand/vadodara_night.rou.xml",
+      "duration_s": 3600,
+      "description": "10 PM - 6 AM very light traffic",
+      "expected_vph_per_junction": 180
+    },
+    "stress_test": {
+      "name": "Stress Test (Oversaturated)",
+      "description": "Test system under extreme demand",
+      "demand_multiplier": 1.8,
+      "expected_vph_per_junction": 2160
+    }
+  },
+  "metrics": {
+    "warmup_period_s": 300,
+    "collection_interval_s": 60,
+    "output_directory": "simulation/results",
+    "export_formats": ["json", "csv"]
+  },
+  "optimization": {
+    "baseline_mode": {
+      "description": "Fixed-time signals from junction_config.json",
+      "signal_control": "pre-programmed"
+    },
+    "adaptive_mode": {
+      "description": "Dynamic Webster optimization with geometry-aware flows",
+      "signal_control": "real-time",
+      "update_frequency_s": 5,
+      "features": [
+        "geometry_aware_saturation_flows",
+        "spillback_prevention",
+        "webster_optimization"
+      ]
+    }
+  },
+  "validation_targets": {
+    "waiting_time_reduction_pct": 35,
+    "spillback_reduction_pct": 83,
+    "throughput_increase_pct": 15,
+    "delay_reduction_pct": 35
+  }
+}

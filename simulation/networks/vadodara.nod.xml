@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<nodes>
+  <node id="J001" x="0.00" y="0.00" type="traffic_light"/>
+  <node id="ext_J001_north" x="0.00" y="200.00" type="priority"/>
+  <node id="ext_J001_north_out" x="0.00" y="200.00" type="priority"/>
+  <node id="ext_J001_south" x="0.00" y="-200.00" type="priority"/>
+  <node id="ext_J001_south_out" x="0.00" y="-200.00" type="priority"/>
+  <node id="ext_J001_east" x="200.00" y="0.00" type="priority"/>
+  <node id="ext_J001_east_out" x="200.00" y="0.00" type="priority"/>
+  <node id="ext_J001_west" x="-200.00" y="0.00" type="priority"/>
+  <node id="ext_J001_west_out" x="-200.00" y="0.00" type="priority"/>
+  <node id="J002" x="2976.28" y="-1658.67" type="traffic_light"/>
+  <node id="ext_J002_north" x="2976.28" y="-1458.67" type="priority"/>
+  <node id="ext_J002_north_out" x="2976.28" y="-1458.67" type="priority"/>
+  <node id="ext_J002_south" x="2976.28" y="-1858.67" type="priority"/>
+  <node id="ext_J002_south_out" x="2976.28" y="-1858.67" type="priority"/>
+  <node id="ext_J002_east" x="3176.28" y="-1658.67" type="priority"/>
+  <node id="ext_J002_east_out" x="3176.28" y="-1658.67" type="priority"/>
+  <node id="ext_J002_west" x="2776.28" y="-1658.67" type="priority"/>
+  <node id="ext_J002_west_out" x="2776.28" y="-1658.67" type="priority"/>
+  <node id="J003" x="1307.92" y="1458.29" type="traffic_light"/>
+  <node id="ext_J003_north" x="1307.92" y="1658.29" type="priority"/>
+  <node id="ext_J003_north_out" x="1307.92" y="1658.29" type="priority"/>
+  <node id="ext_J003_south" x="1307.92" y="1258.29" type="priority"/>
+  <node id="ext_J003_south_out" x="1307.92" y="1258.29" type="priority"/>
+  <node id="ext_J003_east" x="1507.92" y="1458.29" type="priority"/>
+  <node id="ext_J003_east_out" x="1507.92" y="1458.29" type="priority"/>
+  <node id="ext_J003_west" x="1107.92" y="1458.29" type="priority"/>
+  <node id="ext_J003_west_out" x="1107.92" y="1458.29" type="priority"/>
+</nodes>

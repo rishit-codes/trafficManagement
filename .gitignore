@@ -1,0 +1,50 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# SUMO outputs
+*.sumocfg
+*.net.xml
+*.rou.xml
+*.tripinfo.xml
+
+# Model weights (large files)
+*.pt
+*.onnx
+
+# Environment
+.env
+.env.local
+
+# Results (generated)
+results/*.csv
+results/*.json
+
+# Samples (large video files)
+samples/*.mp4
+samples/*.avi
+samples/*.mov
+
+# Node modules (dashboard)
+dashboard/node_modules/
+dashboard/dist/

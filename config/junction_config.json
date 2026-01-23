@@ -1,0 +1,139 @@
+{
+  "junctions": {
+    "alkapuri_circle": {
+      "id": "J001",
+      "name": "Alkapuri Circle",
+      "coordinates": {
+        "lat": 22.3119,
+        "lon": 73.1723
+      },
+      "approaches": {
+        "north": {
+          "lanes": 2,
+          "width_m": 3.5,
+          "turn_radius_m": 12,
+          "storage_length_m": 150,
+          "heavy_vehicle_pct": 0.15
+        },
+        "south": {
+          "lanes": 2,
+          "width_m": 3.5,
+          "turn_radius_m": 12,
+          "storage_length_m": 150,
+          "heavy_vehicle_pct": 0.15
+        },
+        "east": {
+          "lanes": 3,
+          "width_m": 3.0,
+          "turn_radius_m": 8,
+          "storage_length_m": 120,
+          "heavy_vehicle_pct": 0.20
+        },
+        "west": {
+          "lanes": 3,
+          "width_m": 3.0,
+          "turn_radius_m": 8,
+          "storage_length_m": 120,
+          "heavy_vehicle_pct": 0.20
+        }
+      },
+      "current_timing": {
+        "cycle_length_s": 120,
+        "phases": [
+          {"name": "NS", "green_s": 45, "yellow_s": 3, "red_s": 72},
+          {"name": "EW", "green_s": 45, "yellow_s": 3, "red_s": 72}
+        ]
+      }
+    },
+    "mandvi_junction": {
+      "id": "J002",
+      "name": "Mandvi Junction",
+      "coordinates": {
+        "lat": 22.2970,
+        "lon": 73.2012
+      },
+      "approaches": {
+        "north": {
+          "lanes": 1,
+          "width_m": 2.8,
+          "turn_radius_m": 6,
+          "storage_length_m": 80,
+          "heavy_vehicle_pct": 0.10
+        },
+        "south": {
+          "lanes": 1,
+          "width_m": 2.5,
+          "turn_radius_m": 5,
+          "storage_length_m": 80,
+          "heavy_vehicle_pct": 0.10
+        },
+        "east": {
+          "lanes": 2,
+          "width_m": 2.8,
+          "turn_radius_m": 6,
+          "storage_length_m": 100,
+          "heavy_vehicle_pct": 0.08
+        },
+        "west": {
+          "lanes": 2,
+          "width_m": 2.8,
+          "turn_radius_m": 6,
+          "storage_length_m": 100,
+          "heavy_vehicle_pct": 0.08
+        }
+      },
+      "current_timing": {
+        "cycle_length_s": 90,
+        "phases": [
+          {"name": "NS", "green_s": 35, "yellow_s": 3, "red_s": 52},
+          {"name": "EW", "green_s": 35, "yellow_s": 3, "red_s": 52}
+        ]
+      }
+    },
+    "nh48_bridge": {
+      "id": "J003",
+      "name": "NH-48 Vishwamitri Bridge Junction",
+      "coordinates": {
+        "lat": 22.3250,
+        "lon": 73.1850
+      },
+      "approaches": {
+        "north": {
+          "lanes": 3,
+          "width_m": 3.65,
+          "turn_radius_m": 15,
+          "storage_length_m": 200,
+          "heavy_vehicle_pct": 0.25
+        },
+        "south": {
+          "lanes": 3,
+          "width_m": 3.65,
+          "turn_radius_m": 15,
+          "storage_length_m": 200,
+          "heavy_vehicle_pct": 0.25
+        },
+        "east": {
+          "lanes": 2,
+          "width_m": 3.5,
+          "turn_radius_m": 10,
+          "storage_length_m": 150,
+          "heavy_vehicle_pct": 0.15
+        },
+        "west": {
+          "lanes": 2,
+          "width_m": 3.5,
+          "turn_radius_m": 10,
+          "storage_length_m": 150,
+          "heavy_vehicle_pct": 0.15
+        }
+      },
+      "current_timing": {
+        "cycle_length_s": 120,
+        "phases": [
+          {"name": "NS", "green_s": 50, "yellow_s": 3, "red_s": 67},
+          {"name": "EW", "green_s": 40, "yellow_s": 3, "red_s": 77}
+        ]
+      }
+    }
+  }
+}

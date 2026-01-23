@@ -1,0 +1,289 @@
+"""
+FastAPI Server
+Main entry point for the Traffic Management System API.
+
+Features:
+- RESTful API for junction data and signal control
+- WebSocket for real-time updates
+- CORS enabled for dashboard frontend
+- Auto-generated OpenAPI docs
+"""
+
+import os
+import sys
+from pathlib import Path
+from contextlib import asynccontextmanager
+from typing import Dict
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from backend.src.geometric_database import GeometricDatabase
+from backend.src.webster_optimizer import WebsterOptimizer
+from backend.src.spillback_detector import SpillbackDetector
+from backend.src.signal_controller import SignalController
+from backend.src.pcu_converter import PCUConverter
+
+# Import additional routers
+from backend.api.routes import traffic_router, corridor_router, greenwave_router
+
+# Global instances (initialized on startup)
+geo_db: GeometricDatabase = None
+optimizer: WebsterOptimizer = None
+spillback: SpillbackDetector = None
+controller: SignalController = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize components on startup, cleanup on shutdown."""
+    global geo_db, optimizer, spillback, controller
+    
+    # Get config paths
+    base_path = Path(__file__).parent.parent.parent / "config"
+    junction_config = str(base_path / "junction_config.json")
+    context_config = str(base_path / "vadodara_context.json")
+    
+    # Initialize components
+    print("Initializing Traffic Management System...")
+    geo_db = GeometricDatabase(junction_config, context_config)
+    optimizer = WebsterOptimizer(geo_db)
+    spillback = SpillbackDetector(geo_db)
+    controller = SignalController(backend="mock")
+    controller.connect()
+    print(f"Loaded {len(geo_db.list_junctions())} junctions")
+    
+    yield  # Server runs here
+    
+    # Cleanup
+    controller.disconnect()
+    print("Traffic Management System shutdown complete")
+
+
+# Create FastAPI app
+app = FastAPI(
+    title="Traffic Management System API",
+    description="Geometry-Aware Intelligent Traffic Management for Vadodara Smart City",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Enable CORS for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify exact origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include additional routers
+app.include_router(traffic_router)
+app.include_router(corridor_router)
+app.include_router(greenwave_router)
+
+
+# ===== Health & Info Endpoints =====
+
+@app.get("/", tags=["Info"])
+async def root():
+    """API root with basic info."""
+    return {
+        "name": "Traffic Management System",
+        "version": "1.0.0",
+        "status": "running",
+        "docs": "/docs"
+    }
+
+
+@app.get("/health", tags=["Info"])
+async def health_check():
+    """Health check endpoint."""
+    return {
+        "status": "healthy",
+        "components": {
+            "geo_db": geo_db is not None,
+            "optimizer": optimizer is not None,
+            "controller": controller is not None
+        }
+    }
+
+
+# ===== Junction Endpoints =====
+
+@app.get("/junctions", tags=["Junctions"])
+async def list_junctions():
+    """List all available junctions."""
+    return {
+        "junctions": [
+            geo_db.to_dict(jid) for jid in geo_db.list_junctions()
+        ]
+    }
+
+
+@app.get("/junctions/{junction_id}", tags=["Junctions"])
+async def get_junction(junction_id: str):
+    """Get detailed info for a specific junction."""
+    data = geo_db.to_dict(junction_id)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Junction {junction_id} not found")
+    return data
+
+
+@app.get("/junctions/{junction_id}/state", tags=["Junctions"])
+async def get_junction_state(junction_id: str):
+    """Get current signal state for a junction."""
+    state = controller.get_current_state(junction_id)
+    if not state:
+        raise HTTPException(status_code=404, detail=f"State not available for {junction_id}")
+    return state
+
+
+# ===== Optimization Endpoints =====
+
+@app.post("/optimize/{junction_id}", tags=["Optimization"])
+async def optimize_junction(junction_id: str, flows: Dict[str, float]):
+    """
+    Calculate optimal signal timing for a junction.
+    
+    Args:
+        junction_id: Junction to optimize
+        flows: Traffic flows per approach, e.g. {"north": 800, "south": 750, "east": 1200, "west": 1100}
+    
+    Returns:
+        Optimized timing plan
+    """
+    try:
+        result = optimizer.optimize(junction_id, flows)
+        return result.to_dict()
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.post("/optimize/{junction_id}/compare", tags=["Optimization"])
+async def compare_timing(junction_id: str, flows: Dict[str, float]):
+    """Compare optimized timing with current fixed timing."""
+    try:
+        return optimizer.compare_with_fixed(junction_id, flows)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.post("/optimize/{junction_id}/apply", tags=["Optimization"])
+async def apply_optimized_timing(junction_id: str, flows: Dict[str, float]):
+    """Calculate and apply optimized timing to signal controller."""
+    try:
+        result = optimizer.optimize(junction_id, flows)
+        success = controller.apply_timing(junction_id, result.to_dict())
+        return {
+            "applied": success,
+            "timing": result.to_dict()
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+# ===== Spillback Endpoints =====
+
+@app.post("/spillback/{junction_id}", tags=["Spillback"])
+async def analyze_spillback(junction_id: str, queues: Dict[str, int]):
+    """
+    Analyze spillback risk for a junction.
+    
+    Args:
+        junction_id: Junction to analyze
+        queues: Queue lengths per approach, e.g. {"north": 15, "south": 12, "east": 35, "west": 8}
+    """
+    try:
+        status = spillback.analyze(junction_id, queues)
+        return spillback.to_dict(status)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+# ===== Emergency Endpoints =====
+
+@app.post("/emergency/{junction_id}", tags=["Emergency"])
+async def trigger_emergency_preemption(junction_id: str, direction: str):
+    """
+    Trigger emergency vehicle preemption.
+    Creates green corridor for emergency vehicles.
+    """
+    success = controller.trigger_emergency_preemption(junction_id, direction)
+    return {
+        "success": success,
+        "junction_id": junction_id,
+        "direction": direction,
+        "action": "EMERGENCY_PREEMPTION"
+    }
+
+
+# ===== Vision Processing Endpoint =====
+
+@app.post("/vision/process/{junction_id}", tags=["Vision"])
+async def process_camera_frame(junction_id: str, vehicle_counts: Dict[str, int]):
+    """
+    Process vehicle detection data from vision module.
+    Converts to PCU and generates optimization recommendation.
+    
+    Args:
+        junction_id: Junction being monitored
+        vehicle_counts: Dict like {"car": 10, "motorcycle": 25, "bus": 3}
+    
+    Returns:
+        Combined detection + optimization result
+    """
+    try:
+        # Convert to PCU
+        converter = PCUConverter()
+        total_pcu = converter.convert(vehicle_counts)
+        
+        # NOTE: MVP Limitation - Equal flow distribution
+        # In production, this should:
+        # 1. Accept per-direction vehicle counts from the camera
+        # 2. Aggregate flows over a time window (e.g., last 5 minutes)
+        # 3. Use historical patterns to estimate actual directional flows
+        # For hackathon demo, we distribute equally across all directions
+        flows = {direction: total_pcu / 4 for direction in ["north", "south", "east", "west"]}
+        
+        # Optimize
+        result = optimizer.optimize(junction_id, flows)
+        
+        return {
+            "junction_id": junction_id,
+            "vehicle_counts": vehicle_counts,
+            "total_pcu": total_pcu,
+            "optimization": result.to_dict()
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+# ===== PCU Conversion Endpoint =====
+
+@app.post("/pcu/convert", tags=["Utilities"])
+async def convert_to_pcu(vehicle_counts: Dict[str, int]):
+    """
+    Convert vehicle counts to PCU.
+    
+    Args:
+        vehicle_counts: e.g. {"car": 10, "motorcycle": 25, "bus": 3}
+    
+    Returns:
+        Total PCU value
+    """
+    converter = PCUConverter()
+    pcu = converter.convert(vehicle_counts)
+    return {
+        "vehicle_counts": vehicle_counts,
+        "total_pcu": pcu
+    }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

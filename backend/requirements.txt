@@ -1,0 +1,27 @@
+# Core ML/Vision
+ultralytics>=8.0.0          # YOLOv8
+opencv-python>=4.8.0        # Video/image processing
+numpy>=1.24.0               # Array operations
+
+# Traffic Engineering
+scipy>=1.11.0               # Optimization algorithms
+pandas>=2.0.0               # Data handling
+
+# Geospatial
+osmnx>=1.5.0                # OpenStreetMap data
+shapely>=2.0.0              # Geometry operations
+
+# Database
+psycopg2-binary>=2.9.0      # PostgreSQL (optional)
+
+# SUMO Integration
+traci>=1.18.0               # SUMO Python interface
+sumolib>=1.18.0             # SUMO network utilities
+
+# API/Server (optional for dashboard backend)
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# Utilities
+python-dotenv>=1.0.0        # Environment variables
+tqdm>=4.66.0                # Progress bars

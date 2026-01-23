@@ -1,0 +1,27 @@
+{
+  "baseline": {
+    "scenario": "baseline",
+    "total_duration_s": 300,
+    "total_vehicles": 464,
+    "average_waiting_time_s": 2216.4741379310344,
+    "average_travel_time_s": 2276.4741379310344,
+    "max_queue_length_m": 160.0,
+    "average_queue_length_m": 44.24347222222222,
+    "throughput_veh_per_hour": 3132.0,
+    "spillback_events": 19,
+    "total_delay_veh_hours": 285.6788888888889
+  },
+  "adaptive": {
+    "scenario": "ADAPTIVE",
+    "total_duration_s": 300,
+    "total_vehicles": 349,
+    "average_waiting_time_s": 11240.578796561605,
+    "average_travel_time_s": 11300.578796561605,
+    "max_queue_length_m": 0,
+    "average_queue_length_m": 0,
+    "throughput_veh_per_hour": 4188,
+    "spillback_events": 33,
+    "total_delay_veh_hours": 1089.7116666666666
+  },
+  "timestamp": 1769059917.1532996
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<edges>
+  <edge id="in_J001_north" from="ext_J001_north" to="J001" numLanes="2" speed="13.89" width="3.50"/>
+  <edge id="out_J001_north" from="J001" to="ext_J001_north_out" numLanes="2" speed="13.89" width="3.50"/>
+  <edge id="in_J001_south" from="ext_J001_south" to="J001" numLanes="2" speed="13.89" width="3.50"/>
+  <edge id="out_J001_south" from="J001" to="ext_J001_south_out" numLanes="2" speed="13.89" width="3.50"/>
+  <edge id="in_J001_east" from="ext_J001_east" to="J001" numLanes="3" speed="13.89" width="3.00"/>
+  <edge id="out_J001_east" from="J001" to="ext_J001_east_out" numLanes="3" speed="13.89" width="3.00"/>
+  <edge id="in_J001_west" from="ext_J001_west" to="J001" numLanes="3" speed="13.89" width="3.00"/>
+  <edge id="out_J001_west" from="J001" to="ext_J001_west_out" numLanes="3" speed="13.89" width="3.00"/>
+  <edge id="in_J002_north" from="ext_J002_north" to="J002" numLanes="1" speed="11.11" width="2.80"/>
+  <edge id="out_J002_north" from="J002" to="ext_J002_north_out" numLanes="1" speed="11.11" width="2.80"/>
+  <edge id="in_J002_south" from="ext_J002_south" to="J002" numLanes="1" speed="11.11" width="2.50"/>
+  <edge id="out_J002_south" from="J002" to="ext_J002_south_out" numLanes="1" speed="11.11" width="2.50"/>
+  <edge id="in_J002_east" from="ext_J002_east" to="J002" numLanes="2" speed="11.11" width="2.80"/>
+  <edge id="out_J002_east" from="J002" to="ext_J002_east_out" numLanes="2" speed="11.11" width="2.80"/>
+  <edge id="in_J002_west" from="ext_J002_west" to="J002" numLanes="2" speed="11.11" width="2.80"/>
+  <edge id="out_J002_west" from="J002" to="ext_J002_west_out" numLanes="2" speed="11.11" width="2.80"/>
+  <edge id="in_J003_north" from="ext_J003_north" to="J003" numLanes="3" speed="16.67" width="3.65"/>
+  <edge id="out_J003_north" from="J003" to="ext_J003_north_out" numLanes="3" speed="16.67" width="3.65"/>
+  <edge id="in_J003_south" from="ext_J003_south" to="J003" numLanes="3" speed="16.67" width="3.65"/>
+  <edge id="out_J003_south" from="J003" to="ext_J003_south_out" numLanes="3" speed="16.67" width="3.65"/>
+  <edge id="in_J003_east" from="ext_J003_east" to="J003" numLanes="2" speed="16.67" width="3.50"/>
+  <edge id="out_J003_east" from="J003" to="ext_J003_east_out" numLanes="2" speed="16.67" width="3.50"/>
+  <edge id="in_J003_west" from="ext_J003_west" to="J003" numLanes="2" speed="16.67" width="3.50"/>
+  <edge id="out_J003_west" from="J003" to="ext_J003_west_out" numLanes="2" speed="16.67" width="3.50"/>
+</edges>

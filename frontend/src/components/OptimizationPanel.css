@@ -1,0 +1,260 @@
+.optimization-panel {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.flow-inputs h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.flow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.flow-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.flow-input label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+.flow-input input {
+    padding: 0.625rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    transition: all 0.2s;
+}
+
+.flow-input input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.flow-input .unit {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.optimize-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.optimize-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+.optimize-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.error-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fef2f2;
+    border-left: 4px solid #dc2626;
+    border-radius: 6px;
+}
+
+.error-message p {
+    margin: 0;
+    color: #991b1b;
+    font-size: 0.875rem;
+}
+
+.optimization-result {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f1f5f9;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #10b981;
+}
+
+.result-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.cycle-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-card {
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    text-align: center;
+}
+
+.info-card.success {
+    background: #f0fdf4;
+    border-color: #10b981;
+}
+
+.info-card.warning {
+    background: #fffbeb;
+    border-color: #f59e0b;
+}
+
+.info-card .label {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-card .value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.phases-container h4 {
+    margin: 0 0 1rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.phase-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #fafafa;
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+}
+
+.phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.phase-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1rem;
+}
+
+.phase-total {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.phase-timing {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.timing-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: white;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.timing-item .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.timing-item.green .dot {
+    background: #10b981;
+}
+
+.timing-item.yellow .dot {
+    background: #fbbf24;
+}
+
+.timing-item.red .dot {
+    background: #dc2626;
+}
+
+.arrow {
+    color: #cbd5e1;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

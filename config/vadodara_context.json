@@ -1,0 +1,112 @@
+{
+    "city": "Vadodara",
+    "state": "Gujarat",
+    "country": "India",
+    "pcu_factors": {
+        "motorcycle": 0.2,
+        "car": 1.0,
+        "auto_rickshaw": 0.8,
+        "bus": 2.5,
+        "truck": 3.0,
+        "bicycle": 0.2
+    },
+    "yolo_class_mapping": {
+        "motorcycle": [
+            "motorcycle"
+        ],
+        "car": [
+            "car"
+        ],
+        "auto_rickshaw": [
+            "car"
+        ],
+        "bus": [
+            "bus"
+        ],
+        "truck": [
+            "truck"
+        ],
+        "bicycle": [
+            "bicycle"
+        ]
+    },
+    "hcm_parameters": {
+        "base_saturation_flow": 1900,
+        "min_cycle_length_s": 30,
+        "max_cycle_length_s": 120,
+        "yellow_time_s": 3,
+        "all_red_time_s": 2,
+        "lost_time_per_phase_s": 4
+    },
+    "lane_width_factors": {
+        "3.65": 1.00,
+        "3.35": 0.96,
+        "3.05": 0.91,
+        "2.75": 0.86,
+        "2.50": 0.81
+    },
+    "turn_radius_factors": {
+        "15": 0.95,
+        "12": 0.92,
+        "10": 0.90,
+        "8": 0.87,
+        "6": 0.85,
+        "5": 0.80
+    },
+    "corridors": {
+        "nh48": {
+            "name": "NH-48 Golden Corridor",
+            "junctions": [
+                "J003"
+            ],
+            "priority": "high",
+            "spillback_threshold": 0.75,
+            "heavy_vehicle_priority": true
+        },
+        "old_city": {
+            "name": "Old City Zone",
+            "junctions": [
+                "J002"
+            ],
+            "priority": "medium",
+            "max_cycle_s": 90,
+            "pedestrian_priority": true
+        },
+        "alkapuri": {
+            "name": "Alkapuri Arterial",
+            "junctions": [
+                "J001"
+            ],
+            "priority": "high",
+            "green_wave_enabled": true
+        }
+    },
+    "time_periods": {
+        "morning_peak": {
+            "start": "08:00",
+            "end": "10:00",
+            "factor": 1.3
+        },
+        "evening_peak": {
+            "start": "18:00",
+            "end": "20:00",
+            "factor": 1.3
+        },
+        "off_peak": {
+            "start": "10:00",
+            "end": "18:00",
+            "factor": 1.0
+        },
+        "night": {
+            "start": "22:00",
+            "end": "06:00",
+            "factor": 0.5
+        }
+    },
+    "spillback_prevention": {
+        "critical_occupancy_threshold": 0.85,
+        "warning_occupancy_threshold": 0.70,
+        "avg_vehicle_length_m": 5.0,
+        "avg_gap_m": 2.0
+    }
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<tlLogics>
+  <tlLogic id="J001" type="static" programID="baseline" offset="0">
+    <phase duration="45" state="GGGGrrrrGGGGrrrr"/>
+    <phase duration="3" state="yyyyrrrryyyyrrrr"/>
+    <phase duration="45" state="rrrrGGGGrrrrGGGG"/>
+    <phase duration="3" state="rrrryyyyrrrryyyy"/>
+  </tlLogic>
+  <tlLogic id="J002" type="static" programID="baseline" offset="0">
+    <phase duration="35" state="GGGGrrrrGGGGrrrr"/>
+    <phase duration="3" state="yyyyrrrryyyyrrrr"/>
+    <phase duration="35" state="rrrrGGGGrrrrGGGG"/>
+    <phase duration="3" state="rrrryyyyrrrryyyy"/>
+  </tlLogic>
+  <tlLogic id="J003" type="static" programID="baseline" offset="0">
+    <phase duration="50" state="GGGGrrrrGGGGrrrr"/>
+    <phase duration="3" state="yyyyrrrryyyyrrrr"/>
+    <phase duration="40" state="rrrrGGGGrrrrGGGG"/>
+    <phase duration="3" state="rrrryyyyrrrryyyy"/>
+  </tlLogic>
+</tlLogics>
