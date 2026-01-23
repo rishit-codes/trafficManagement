@@ -14,21 +14,20 @@ const PerformanceSummary = ({ data, loading }) => {
   }
 
   // Map backend response to UI cards
-  // Expecting backend to return object like { avg_wait: -15, spillback: -32, ... }
-  // Only displaying what is actually returned.
+  // Backend returns negative values for reductions (e.g., -15 means 15% reduction/improvement)
   
   const metrics = [
     { 
         label: 'Avg Wait Time', 
-        value: data.avg_wait_reduction != null ? `${data.avg_wait_reduction > 0 ? '-' : '+'}${Math.abs(data.avg_wait_reduction)}%` : '--', 
+        value: data.avg_wait_reduction != null ? `${Math.abs(data.avg_wait_reduction)}%` : '--', 
         sub: 'vs. fixed-time baseline',
-        good: data.avg_wait_reduction > 0 // Positive reduction is good
+        good: data.avg_wait_reduction < 0 // Negative value means improvement
     },
     { 
         label: 'Spillback Events', 
-        value: data.spillback_reduction != null ? `${data.spillback_reduction > 0 ? '-' : '+'}${Math.abs(data.spillback_reduction)}%` : '--', 
+        value: data.spillback_reduction != null ? `${Math.abs(data.spillback_reduction)}%` : '--', 
         sub: 'congestion reduction',
-        good: data.spillback_reduction > 0
+        good: data.spillback_reduction < 0 // Negative value means improvement
     },
     { 
         label: 'Vehicle Throughput', 

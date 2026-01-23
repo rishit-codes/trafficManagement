@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PerformanceSummary from './PerformanceSummary';
 import ComparisonCharts from './ComparisonCharts';
 import TimePatterns from './TimePatterns';
@@ -12,6 +12,8 @@ const Analytics = () => {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState(7); // Default 7 days
+  const [isLiveUpdating, setIsLiveUpdating] = useState(true); // Enable real-time updates
+  const pollIntervalRef = useRef(null);
 
   // 1. Initial Load: Get list of junctions
   useEffect(() => {
@@ -48,8 +50,23 @@ const Analytics = () => {
       }
     };
 
+    // Initial fetch
     fetchMetrics();
-  }, [selectedId, timeRange]);
+
+    // Set up polling for real-time updates every 15 seconds
+    if (isLiveUpdating) {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      
+      pollIntervalRef.current = setInterval(() => {
+        fetchMetrics();
+      }, 15000); // Update every 15 seconds for real-time feel
+    }
+
+    // Cleanup
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
+  }, [selectedId, timeRange, isLiveUpdating]);
 
   return (
     <div className="analytics-container">
@@ -60,7 +77,7 @@ const Analytics = () => {
           <p className="analytics-subtitle">Evaluating traffic efficiency and congestion reduction</p>
           
           {/* Junction Selector */}
-          <div style={{ marginTop: '12px' }}>
+          <div style={{ marginTop: '12px', display: 'flex', gap: '12px', alignItems: 'center' }}>
               {junctions.length > 0 && (
                 <select 
                     className="junction-select"
@@ -73,6 +90,22 @@ const Analytics = () => {
                     ))}
                 </select>
               )}
+              {/* Live Update Toggle */}
+              <button
+                onClick={() => setIsLiveUpdating(!isLiveUpdating)}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #E5E7EB',
+                  background: isLiveUpdating ? '#10B981' : '#F9FAFB',
+                  color: isLiveUpdating ? 'white' : '#6B7280',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 500
+                }}
+              >
+                {isLiveUpdating ? '● Live' : 'Live'}
+              </button>
           </div>
         </div>
         
