@@ -1,172 +1,248 @@
-# Traffic Management System Documentation
+# Comprehensive Backend Documentation
+## Geometry-Aware Intelligent Traffic Management System
 
-## 1. Project Overview
-
-**Project Name:** Geometry-Aware Intelligent Traffic Signal Optimization for Vadodara Smart City  
-**Type:** Advanced Traffic Management System (ATMS)  
-**Core Innovation:** Software-only solution utilizing existing CCTV infrastructure to optimize signal timings based on real-time traffic demand and precise junction geometry.
-
-### Problem Statement
-Vadodara faces severe traffic congestion due to:
-*   **Geometric Constraints:** Narrow lanes (2.5-3.0m) in the old city and tight turning radii.
-*   **Fixed Signal Timings:** Pre-timed controllers lead to "empty green" phases and insufficient time for heavy queues.
-*   **Bottlenecks:** Critical constriction points like the NH-48 bridges.
-*   **Spillback:** Queues from downstream junctions blocking upstream intersections.
-
-### Solution
-A **Geometry-Aware Intelligent Traffic Management System** that:
-1.  **Detects** real-time traffic using existing CCTV feeds and YOLOv8 computer vision.
-2.  **Analyzes** saturation flow based on actual road geometry (lane width, heavy vehicles, turn radius) using HCM standards.
-3.  **Optimizes** signal timings dynamically using a modified Webster's method.
-4.  **Prevents** gridlock through proactive spillback detection.
+**Version:** 2.0
+**Target Environment:** Vadodara Smart City (and similar Tier-2 cities)
+**Core Philosophy:** Software-centric optimization using existing infrastructure.
 
 ---
 
-## 2. Key Features
+## 1. Executive Summary
 
-### 🚦 Geometry-Aware Optimization
-*   **HCM Compliance:** Calculates saturation flow ($s$) using Highway Capacity Manual formulas, accounting for:
-    *   **Lane Width ($f_w$):** Reduces capacity for lanes < 3.65m (common in Old City).
-    *   **Heavy Vehicles ($f_{HV}$):** Adjusts for trucks/buses (critical for NH-48).
-    *   **Turn Radius ($f_T$):** Accounts for slower speeds on tight turns.
-*   **Formula:** $s_{geom} = s_0 \times N \times f_w \times f_{HV} \times f_T$
-
-### 📹 Computer Vision (Zero Hardware Cost)
-*   **Model:** YOLOv8-nano (pre-trained on COCO).
-*   **Capabilities:**
-    *   Multi-class detection: Car, Bus, Truck, Motorcycle, Person.
-    *   Queue length estimation.
-    *   Low-latency CPU inference (<200ms).
-*   **PCU Conversion:** Converts heterogeneous traffic counts into standard Passenger Car Units (PCU) compliant with Indian Roads Congress (IRC).
-
-### ⚠️ Spillback Prevention
-*   **Mechanism:** Monitors downstream queue lengths relative to road storage capacity.
-*   **Logic:**
-    *   **Warning (70% occupancy):** Flag potential issue.
-    *   **Critical (85% occupancy):** Trigger proactive measures (extend green or hold upstream red) to prevent gridlock.
-
-### 🌐 Simulation & Validation
-*   **SUMO Integration:** Complete simulation environment mirroring Vadodara's road network.
-*   **Metrics:** Validated 35% reduction in waiting time and 83% reduction in spillback events compared to fixed-time baselines.
+This documentation details the backend architecture, algorithms, and logical flow of the Traffic Management System. The system is designed to optimize traffic signal timings in real-time by integrating:
+1.  **Computer Vision:** Detecting traffic demand from existing CCTV feeds.
+2.  **Geometric Analysis:** Calculating road capacity based on physical constraints (lane width, turn radius) rather than theoretical maximums.
+3.  **Webster's Optimization:** Mathematically determining optimal cycle lengths and green splits.
+4.  **Spillback Prevention:** Proactively preventing downstream queues from blocking intersections.
 
 ---
 
-## 3. System Architecture
+## 2. System Architecture
 
-The system operates as a centralized software layer on the Integrated Command & Control Center (ICCC) server.
+The backend is built as a modular Python application exposing a REST API via **FastAPI**. It is designed to run centrally on the Integrated Command & Control Center (ICCC) server.
 
-```mermaid
-graph TD
-    A[CCTV Network] -->|RTSP Stream| B(Vision Module)
-    B -->|Vehicle Counts| C(PCU Converter)
-    C -->|Live Flow PCU/hr| D{Webster Optimizer}
-    
-    E[Geometric Database] -->|Params: Width, Radius| D
-    E -->|Saturation Flow| D
-    
-    D -->|Signal Plan| F[Signal Controller]
-    F -->|Timings| G[Traffic Lights]
-    
-    H[Spillback Detector] -->|Queue Status| D
+### 2.1 Component Layering
+
+```
+[ External World ]       [ Interface Layer ]       [ Core Logic Layer ]       [ Data Layer ]
+      |                          |                          |                        |
+  CCTV Cameras  -------->  Vision Module  -------->  PCU Converter               |
+      |                          |                          |                        |
+  Signal Heads  <------- Signal Controller <------- Webster Optimizer <----  Geometric DB
+      |                                                     ^                        ^
+      |                                                     |                        |
+  Traffic Flow  ----------------------------------> Spillback Detector           Config Files
 ```
 
-### Core Modules (`backend/src/`)
-
-| Module | File | Description |
-| :--- | :--- | :--- |
-| **Geometric Database** | `geometric_database.py` | Manages junction data and calculates HCM saturation flow factors. |
-| **Webster Optimizer** | `webster_optimizer.py` | Calculates optimal cycle length ($C_{opt}$) and green splits based on critical flow ratios ($Y$). |
-| **Vision Module** | `vision_module.py` | YOLOv8 wrapper for vehicle detection and queue estimation from video/RTSP. |
-| **Spillback Detector** | `spillback_detector.py` | Monitors storage capacity usage to prevent intersection blocking. |
-| **PCU Converter** | `pcu_converter.py` | Standardizes vehicle counts into PCU values. |
-
 ---
 
-## 4. Technical Details
+## 3. Core Modules & Algorithms
 
-### Geometric Saturation Flow
-Instead of assuming a fixed capacity (e.g., 1900 PCU/hr), we calculate it dynamically:
-*   **Lane Width Factor ($f_w$):**
+### 3.1 Geometric Database (`src/geometric_database.py`)
+
+This module enables "Geometry-Awareness" by calculating precise saturation flows. Instead of using a fixed value (e.g., 1900 PCU/hr), it applies Highway Capacity Manual (HCM) adjustment factors.
+
+#### The Algorithm: Adjusted Saturation Flow
+$$S_{geom} = S_0 \times N \times f_w \times f_{HV} \times f_T$$
+
+Where:
+*   **$S_0$ (Base Saturation Flow):** 1900 PCU/hr/lane (Standard).
+*   **$N$ (Number of Lanes):** From config.
+*   **$f_w$ (Lane Width Factor):** Penalizes narrow lanes common in old cities.
     *   $\ge 3.65m \rightarrow 1.00$
-    *   $3.05m \rightarrow 0.91$
-    *   $< 2.75m \rightarrow 0.81$ (Old City scenario)
-*   **Heavy Vehicle Factor ($f_{HV}$):** $f_{HV} = \frac{1}{1 + P_{HV}(E_T - 1)}$ where $E_T = 2.5$.
+    *   $3.35m - 3.64m \rightarrow 0.96$
+    *   $3.05m - 3.34m \rightarrow 0.91$
+    *   $2.75m - 3.04m \rightarrow 0.86$
+    *   $< 2.75m \rightarrow 0.81$ (Major penalty for old city roads)
+*   **$f_{HV}$ (Heavy Vehicle Factor):** Adjusts for trucks/buses.
+    *   $$f_{HV} = \frac{1}{1 + P_{HV}(E_T - 1)}$$
+    *   $P_{HV}$: Percent heavy vehicles.
+    *   $E_T$: Passenger Car Equivalent (2.5).
+*   **$f_T$ (Turn Radius Factor):** Penalizes tight turns.
+    *   $\ge 15m \rightarrow 0.95$
+    *   $< 6m \rightarrow 0.80$ (Significant reduction for sharp corners).
 
-### Webster's Optimization Algorithm
-1.  **Flow Ratio ($y_i$):** $y_i = \frac{q_i}{s_{geom}}$ (Demand / Capacity)
-2.  **Critical Flow Ratio ($Y$):** Sum of max flow ratios for competing phases.
-3.  **Optimal Cycle ($C_{opt}$):**
+**Output:** A precise capacity value ($S_{geom}$) for each approach, used as the denominator in flow ratio calculations.
+
+### 3.2 Vision Module (`src/vision_module.py`)
+
+Handles traffic detection using **YOLOv8** (You Only Look Once). Optimized for CPU inference to avoid expensive GPU requirements.
+
+*   **Model:** `yolov8n.pt` (Nano model) for speed (<200ms latency).
+*   **Classes Detected:** Car, Motorcycle, Bus, Truck, Bicycle, Person.
+*   **Region of Interest (ROI):** Can be defined to ignore sidewalks/parking.
+*   **Queue Estimation:** Counts stopped vehicles in the bottom 40% of the frame (configurable) to estimate physical queue length.
+*   **Interfaces:**
+    *   `process_frame(image)`: Single image analysis.
+    *   `process_video(path)`: Batch analysis.
+    *   `process_rtsp_stream(url)`: Real-time stream processing.
+
+### 3.3 PCU Converter (`src/pcu_converter.py`)
+
+Standardizes heterogeneous traffic into **Passenger Car Units (PCU)** based on Indian Roads Congress (IRC) guidelines.
+
+**Conversion Factors:**
+*   Car: 1.0
+*   Motorcycle: 0.2
+*   Auto Rickshaw: 0.8
+*   Bus: 2.5
+*   Truck: 3.0
+*   Bicycle: 0.2
+
+**Function:** Aggregates raw counts from Vision Module into a single flow value (PCU/hr) for the optimizer.
+
+### 3.4 Webster Optimizer (`src/webster_optimizer.py`)
+
+The brain of the system. Calculates optimal signal timings based on demand ($Q$) and capacity ($S$).
+
+#### Algorithm Steps:
+1.  **Calculate Flow Ratios ($y$):**
+    For each phase (e.g., North-South), calculate $y = \frac{Q}{S_{geom}}$. The critical flow ratio for the phase is the maximum $y$ of the opposing approaches.
+
+2.  **Calculate Total Flow ($Y$):**
+    $Y = \sum y_{critical}$ (Sum of critical ratios for all phases).
+
+3.  **Calculate Optimal Cycle Length ($C_{opt}$):**
     $$C_{opt} = \frac{1.5L + 5}{1 - Y}$$
-    *(Where $L$ is total lost time per cycle)*
-4.  **Green Time Distribution:** Green time is allocated proportional to the flow ratio ($y_i/Y$).
+    *   $L$: Total lost time (startup lost time + all-red clearance) per cycle.
+    *   **Constraints:** Confined between `MIN_CYCLE` (30s) and `MAX_CYCLE` (120s).
 
-### Vision Processing Pipeline
-1.  **Input:** Frame capture from RTSP stream (every 5s).
-2.  **Inference:** YOLOv8n detection (CPU-optimized).
-3.  **Filtering:** Count relevant classes (car, truck, bus, bike).
-4.  **PCU Calculation:** aggregated PCU count.
-5.  **Queue Estimation:** Bounding box position analysis (bottom 40% of frame).
+4.  **Green Time Distribution:**
+    $$G_i = \frac{y_i}{Y} \times (C_{opt} - L)$$
+    Allocates available green time proportional to demand.
 
----
+5.  **Safety Checks:**
+    Ensures minimum green times (pedestrian safety) and minimum red clearance.
 
-## 5. Simulation (SUMO)
+### 3.5 Spillback Detector (`src/spillback_detector.py`)
 
-The project includes a full SUMO (Simulation of Urban MObility) suite to valid performance.
+Prevents gridlock by ensuring queues do not exceed road storage capacity.
 
-*   **Network Generation:** `simulation/vadodara_network.py` converts `junction_config.json` into SUMO network files, preserving accurate geometry.
-*   **Traffic Generation:** `simulation/traffic_generator.py` creates realistic heterogeneous traffic (Cars, Bikes, Heavy Vehicles).
-*   **Comparison:** `simulation/run_simulation.py` runs side-by-side comparisons of "Baseline" (Fixed Timing) vs. "Adaptive" (Our System).
+*   **Inputs:** Current queue length ($Q_{len}$), Road Storage Capacity ($Cap$).
+*   **Occupancy Ratio:** $R = Q_{len} / Cap$
+*   **States:**
+    *   **OK:** $R < 0.70$
+    *   **WARNING:** $0.70 \le R < 0.85$
+    *   **CRITICAL:** $R \ge 0.85$ (Trigger immediate action).
+    *   **SPILLBACK:** $R \ge 1.0$ (Intersection blocked).
+*   **Trend Analysis:** Tracks queue history (last 12 samples) to determine if queue is `INCREASING`, `STABLE`, or `DECREASING`.
+*   **Recommendation Engine:** Suggests "Extend Green" or "Block Upstream" based on severity.
 
-**Validated Improvements:**
-*   **Avg Waiting Time:** 35% reduction (45s $\rightarrow$ 29s)
-*   **Spillback Events:** 83% reduction
-*   **Throughput:** 15% increase
+### 3.6 Signal Controller (`src/signal_controller.py`)
 
----
+Abstract interface for hardware communication.
 
-## 6. API Reference
-
-The system exposes a REST API (FastAPI) for integration and monitoring.
-
-### Endpoints
-
-*   **`POST /optimize/{junction_id}`**
-    *   **Input:** Live vehicle counts per approach.
-    *   **Output:** Optimized timing plan (cycle length, green splits).
-*   **`POST /spillback/{junction_id}`**
-    *   **Input:** Queue lengths.
-    *   **Output:** Warning/Critical status and recommended actions.
-*   **`POST /pcu/convert`**
-    *   **Input:** Raw vehicle counts.
-    *   **Output:** Total PCU value.
+*   **Backends:**
+    *   **Mock:** (Default) Logs commands, useful for testing/demos.
+    *   **SUMO:** Connects to TraCI for simulation control.
+    *   **ICCC:** (Placeholder) Webhook/API integration for physical controller hardware.
+*   **Key Functions:**
+    *   `apply_timing(timing_plan)`: Updates cycle/splits.
+    *   `trigger_emergency_preemption(direction)`: Forces immediate green for emergency vehicles.
 
 ---
 
-## 7. Configuration
+## 4. API Reference
 
-*   **`config/junction_config.json`**: Defines physical attributes of junctions (lanes, width, radius).
-*   **`config/vadodara_context.json`**: Defines city-wide parameters (HCM constants, thresholds).
+The system exposes a RESTful API on port 8000.
 
-## 8. Development & Usage
+### 4.1 Optimization
+**POST** `/optimize/{junction_id}`
+*   **Description:** Calculates optimal timing based on current flows.
+*   **Body:** `{ "north": 800, "south": 750, "east": 1200, "west": 1100 }` (PCU/hr)
+*   **Response:**
+    ```json
+    {
+      "cycle_length_s": 90,
+      "phases": [
+        {"name": "NS", "green_s": 40, "yellow_s": 3, "red_s": 47},
+        {"name": "EW", "green_s": 35, "yellow_s": 3, "red_s": 52}
+      ],
+      "is_oversaturated": false
+    }
+    ```
 
-### Prerequisites
-*   Python 3.12+
-*   SUMO (for simulation)
+### 4.2 Spillback Analysis
+**POST** `/spillback/{junction_id}`
+*   **Description:** Checks for gridlock risk.
+*   **Body:** `{ "north": 15, "south": 12, ... }` (Vehicle Count in Queue)
+*   **Response:**
+    ```json
+    {
+      "overall_status": "CRITICAL",
+      "recommended_action": "Extend green for east by 10-15s",
+      "approaches": { "east": {"status": "CRITICAL", "occupancy_pct": 87.5} }
+    }
+    ```
 
-### Installation
-```bash
-git clone <repo>
-cd traffic-anti
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+### 4.3 Vision Processing
+**POST** `/vision/process/{junction_id}`
+*   **Description:** End-to-end processing. Takes vehicle counts, converts to PCU, calculates optimization.
+*   **Body:** `{ "car": 10, "bus": 2, "motorcycle": 15 ... }`
+
+### 4.4 Management
+*   **GET** `/junctions`: List all configured junctions and their geometric properties.
+*   **GET** `/health`: System health check.
+
+---
+
+## 5. Configuration
+
+### 5.1 Junction Config (`config/junction_config.json`)
+Defines the physical reality of the city.
+```json
+{
+  "junctions": {
+    "J001": {
+      "id": "J001",
+      "name": "Productivity Circle",
+      "coordinates": { "lat": 22.3, "lon": 73.1 },
+      "approaches": {
+        "north": {
+          "lanes": 3,
+          "width_m": 3.5,            <-- Critical for f_w calculation
+          "turn_radius_m": 12,       <-- Critical for f_T calculation
+          "storage_length_m": 150,   <-- Critical for Spillback detection
+          "heavy_vehicle_pct": 0.15
+        }
+      }
+    }
+  }
+}
 ```
 
-### Running the System
-```bash
-# Start API Server
-uvicorn api.main:app --reload
-
-# Run Simulation Comparison
-python simulation/run_simulation.py --mode compare --duration 600
+### 5.2 Context Config (`config/vadodara_context.json`)
+Defines city-wide standards and thresholds.
+```json
+{
+  "hcm_parameters": {
+    "base_saturation_flow": 1900,
+    "min_cycle_length_s": 30,
+    "max_cycle_length_s": 120
+  },
+  "spillback_prevention": {
+    "warning_occupancy_threshold": 0.70,
+    "critical_occupancy_threshold": 0.85
+  }
+}
 ```
+
+---
+
+## 6. Simulation Integration (SUMO)
+
+The system includes a complete validation suite using **SUMO (Simulation of Urban MObility)**.
+
+*   **Network Generator:** `simulation/vadodara_network.py` reads `junction_config.json` and procedurally generates a SUMO network (`.net.xml`), ensuring the simulation matches the physical database exactly.
+*   **Traffic Generator:** `simulation/traffic_generator.py` creates realistic, heterogeneous traffic (not just cars) to test the PCU conversion logic.
+*   **Comparison Runner:** `simulation/run_simulation.py` runs two parallel simulations:
+    1.  **Baseline:** Fixed-time signals (what Vadodara has now).
+    2.  **Adaptive:** Connects to the backend logic via TraCI, updating signals every 5 seconds.
+*   **Results:** Outputs metrics demonstrating ~35% delay reduction.
+
+---
+
+## 7. Future Capability (Roadmap)
+
+*   **Green Wave:** `greenwave_router` (in `api/routes.py`) contains stub logic for coordinating offsets along arterial corridors (e.g., Alkapuri).
+*   **Historical Analysis:** Endpoints defined for querying long-term traffic patterns (requires Time-Series DB integration).

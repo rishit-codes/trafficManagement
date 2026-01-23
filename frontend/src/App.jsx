@@ -1,33 +1,12 @@
-import React, { useState } from 'react';
-import Layout from './components/layout/Layout';
-import Dashboard from './pages/dashboard/Dashboard';
-import JunctionDetails from './pages/junction/JunctionDetails';
-import Analytics from './pages/analytics/Analytics';
-import Settings from './pages/settings/Settings';
+import './styles/variables.css';
+import './styles/reset.css';
+import './styles/global.css';
+import 'leaflet/dist/leaflet.css';
+
+import Dashboard from './pages/Dashboard/Dashboard';
 
 function App() {
-  const [activePage, setActivePage] = useState('dashboard');
-
-  const renderPage = () => {
-    switch (activePage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'junctions':
-        return <JunctionDetails />;
-      case 'analytics':
-        return <Analytics />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
-  return (
-    <Layout activePage={activePage} setActivePage={setActivePage}>
-      {renderPage()}
-    </Layout>
-  );
+  return <Dashboard />;
 }
 
 export default App;

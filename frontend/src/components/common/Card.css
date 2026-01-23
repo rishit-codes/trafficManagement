@@ -1,0 +1,55 @@
+/* ============================================================
+   CARD COMPONENT
+   ============================================================ */
+
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow var(--transition-normal);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* -------------------------
+   Header
+   ------------------------- */
+
+.card-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: var(--space-xs) 0 0 0;
+}
+
+/* -------------------------
+   Body
+   ------------------------- */
+
+.card-body {
+  padding: var(--space-lg);
+}
+
+/* -------------------------
+   Footer
+   ------------------------- */
+
+.card-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border-default);
+  background-color: var(--bg-app);
+}

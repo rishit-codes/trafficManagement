@@ -1,0 +1,97 @@
+/* ============================================================
+   METRIC CARD COMPONENT
+   ============================================================ */
+
+.metric-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  animation: metricSlideUp var(--transition-normal) ease-out;
+}
+
+@keyframes metricSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------------
+   Header
+   ------------------------- */
+
+.metric-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.metric-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.metric-icon-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #FFFBEB; /* Light amber for government feel */
+  color: #B45309;
+}
+
+/* -------------------------
+   Body
+   ------------------------- */
+
+.metric-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.metric-unit {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* -------------------------
+   Trend
+   ------------------------- */
+
+.metric-trend {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.metric-trend.trend-positive {
+  color: var(--success);
+}
+
+.metric-trend.trend-negative {
+  color: var(--danger);
+}

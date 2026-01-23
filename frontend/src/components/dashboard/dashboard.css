@@ -1,0 +1,448 @@
+/* ============================================================
+   DASHBOARD COMPONENTS STYLES
+   ============================================================ */
+
+/* -------------------------
+   Dashboard Header
+   ------------------------- */
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding: 0 4px;
+}
+
+.header-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0F172A; /* Dark Navy */
+  margin: 0;
+  line-height: 1.2;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 4px 0 0 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: #FFFBEB;
+  border: 1px solid #FCD34D;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #B45309;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #F59E0B;
+}
+
+.auto-refresh {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.refresh-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.toggle-track {
+  width: 44px;
+  height: 24px;
+  background-color: var(--border-strong);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.toggle-track.active {
+  background-color: var(--success);
+}
+
+.toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left var(--transition-fast);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.toggle-track.active .toggle-thumb {
+  left: 22px;
+}
+
+/* -------------------------
+   KPI Grid
+   ------------------------- */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+  align-items: stretch;
+}
+
+.kpi-card {
+  height: 100%;
+  /* Government calm rule: No hover animation */
+  transition: none;
+}
+
+.kpi-custom-content {
+  margin-top: 4px;
+}
+
+.kpi-subtext {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.kpi-badges-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: var(--border-default);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--success);
+  border-radius: 4px;
+}
+
+.link-text {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.link-text:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -------------------------
+   Map + Alerts Section
+   ------------------------- */
+
+.map-alerts-section {
+  display: grid;
+  grid-template-columns: 65% 35%;
+  gap: 32px;
+  margin-bottom: 32px;
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .map-alerts-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -------------------------
+   City Map (Govt)
+   ------------------------- */
+
+.city-map-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+}
+
+.map-filters {
+  display: flex;
+  gap: 4px;
+  background-color: #F1F5F9;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.filter-tab {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.filter-tab:hover {
+  background-color: #E2E8F0;
+  color: var(--text-primary);
+}
+
+.filter-tab.active {
+  background-color: #FFFFFF;
+  color: var(--primary);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  font-weight: 600;
+}
+
+.map-wrapper-govt {
+  height: 480px; /* Exact height per spec */
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.govt-tooltip .leaflet-tooltip-content {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 0;
+}
+
+.map-tooltip-content {
+  padding: 8px;
+  min-width: 200px;
+}
+
+/* -------------------------
+   Alerts Panel (Govt)
+   ------------------------- */
+
+.alerts-panel-govt {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* Override default card padding */
+}
+
+.alerts-header-govt {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.alerts-list-govt {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 480px; /* Match map height */
+}
+
+.demo-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  background-color: #F1F5F9;
+  color: var(--text-muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.alert-item-govt {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-default);
+  transition: background-color 0.15s ease-out;
+  border-left: 3px solid transparent;
+}
+
+.alert-item-govt:hover {
+  background-color: #F8FAFC;
+}
+
+.alert-item-govt.critical-strip {
+  border-left-color: var(--danger);
+  background-color: #FEF2F2;
+}
+
+.alert-top-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.alert-time-muted {
+  font-size: 11px;
+  color: #94A3B8;
+}
+
+.alert-junction-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 2px 0;
+}
+
+.alert-message-text {
+  font-size: 13px;
+  color: #475569;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.alert-action-link {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 500;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.alert-action-link:hover {
+  text-decoration: underline;
+}
+
+.alerts-empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+
+/* -------------------------
+   Traffic Trends Chart
+   ------------------------- */
+
+.traffic-trends-card {
+  margin-bottom: 32px;
+}
+
+.chart-header {
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0;
+}
+
+.chart-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+}
+
+.chart-container {
+  width: 100%;
+}
+
+.chart-tooltip {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-default);
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: var(--shadow-md);
+}
+
+.tooltip-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  margin-bottom: 4px;
+}
+
+.tooltip-value {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 2px 0;
+}
+
+.tooltip-value.blue { color: #2563EB; }
+.tooltip-value.red { color: #DC2626; }
+
+/* -------------------------
+   Status Footer
+   ------------------------- */
+
+.status-footer-govt {
+  height: 40px;
+  background-color: #F8FAFC;
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-top: auto;
+}
+
+.footer-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.footer-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.footer-dot.offline { background-color: #DC2626; }
+.footer-dot.online { background-color: #16A34A; }
+
