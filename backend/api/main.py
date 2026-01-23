@@ -146,11 +146,19 @@ async def get_junction(junction_id: str):
 
 @app.get("/junctions/{junction_id}/state", tags=["Junctions"])
 async def get_junction_state(junction_id: str):
-    """Get current signal state for a junction."""
-    state = controller.get_current_state(junction_id)
+    """
+    Get current signal state for a junction.
+    
+    Returns deterministic signal phasing based on server time.
+    Phase cycle: GREEN (30s) → YELLOW (5s) → RED (35s) = 70s total
+    """
+    from backend.src.signal_state_engine import get_signal_state, signal_state_to_dict
+    
+    state = get_signal_state(junction_id)
     if not state:
-        raise HTTPException(status_code=404, detail=f"State not available for {junction_id}")
-    return state
+        raise HTTPException(status_code=404, detail=f"Junction {junction_id} not found")
+    
+    return signal_state_to_dict(state)
 
 
 # ===== Optimization Endpoints =====

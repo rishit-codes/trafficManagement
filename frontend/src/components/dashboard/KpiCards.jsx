@@ -38,15 +38,11 @@ const KpiCards = ({ junctions = [], loading = false }) => {
       <div className="dashboard-card kpi-card">
         <h3 className="kpi-title">Average Wait Time</h3>
         <div className="kpi-main">
-          <span className="kpi-value">{hasData ? '32 s' : '-- s'}</span>
+          {/* Honest: No live wait time data yet */}
+          <span className="kpi-value">--</span>
         </div>
         <div className="kpi-footer">
-          {hasData ? (
-             <>
-               <span className="kpi-subtext">vs 45s baseline</span>
-               <span className="kpi-trend trend-green">-29%</span>
-             </>
-          ) : <span className="kpi-empty-text">Data unavailable</span>}
+           <span className="kpi-subtext">Baselining in progress...</span>
         </div>
       </div>
 
@@ -54,11 +50,11 @@ const KpiCards = ({ junctions = [], loading = false }) => {
       <div className="dashboard-card kpi-card">
         <h3 className="kpi-title">Active Spillback Events</h3>
         <div className="kpi-main">
-          <span className="kpi-value">{hasData ? '1' : '--'}</span>
-          {hasData && <span className="kpi-badge badge-critical">CRITICAL</span>}
+          {/* Honest: No live spillback monitoring */}
+          <span className="kpi-value">--</span>
         </div>
         <div className="kpi-footer">
-          {hasData ? <a href="#" className="kpi-link">View affected junctions →</a> : <span className="kpi-empty-text">No active events</span>}
+          <span className="kpi-subtext">Real-time alerts inactive</span>
         </div>
       </div>
 
@@ -68,7 +64,7 @@ const KpiCards = ({ junctions = [], loading = false }) => {
         <div className="kpi-main">
           <span className="kpi-value">{hasData ? `${efficiency}%` : '-- %'}</span>
         </div>
-        <div className="kpi-subtext">Overall network performance</div>
+        <div className="kpi-subtext">Based on connection status</div>
         <div className="progress-bar-bg">
           <div className="progress-bar-fill" style={{ width: hasData ? `${efficiency}%` : '0%' }}></div>
         </div>

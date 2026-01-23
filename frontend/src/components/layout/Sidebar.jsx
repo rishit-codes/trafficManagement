@@ -1,13 +1,14 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = ({ currentView, onNavigate }) => {
+const Sidebar = () => {
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'monitoring', label: 'Live Monitoring' },
-    { id: 'junction', label: 'Junction Detail' },
-    { id: 'analytics', label: 'Analytics' },
-    { id: 'control', label: 'Control Panel' },
+    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/live', label: 'Live Monitoring' },
+    { path: '/junction', label: 'Junction Detail' },
+    { path: '/analytics', label: 'Analytics' },
+    { path: '/control', label: 'Control Panel' },
   ];
 
   return (
@@ -23,13 +24,13 @@ const Sidebar = ({ currentView, onNavigate }) => {
       <nav className="sidebar-nav">
         <ul>
           {navItems.map((item) => (
-            <li key={item.id}>
-              <button 
-                className={`nav-item ${currentView === item.id ? 'active' : ''}`}
-                onClick={() => onNavigate && onNavigate(item.id)}
+            <li key={item.path}>
+              <NavLink 
+                to={item.path} 
+                className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
               >
                 {item.label}
-              </button>
+              </NavLink>
             </li>
           ))}
         </ul>

@@ -165,12 +165,94 @@
 
 /* Spillback & Optimization specifics to be inline or appended if small */
 
-/* Responsive */
+/* Primary Control Grid: Signal | Video | Metrics */
+.primary-control-grid {
+  display: grid;
+  grid-template-columns: auto minmax(280px, 420px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Compact Video Wrapper */
+.compact-video-wrapper {
+  max-width: 420px;
+  width: 100%;
+}
+
+/* Constrain video when on detail page */
+.compact-video-wrapper .live-camera-panel {
+  padding: 12px;
+  border-left: 1px solid var(--border-color); /* Remove accent border */
+  border-radius: 8px;
+}
+
+.compact-video-wrapper .camera-feed-container {
+  max-height: 240px;
+}
+
+.compact-video-wrapper .camera-header {
+  margin-bottom: 8px;
+}
+
+.compact-video-wrapper .camera-title {
+  font-size: 14px;
+}
+
+.compact-video-wrapper .camera-footer {
+  font-size: 11px;
+  padding-top: 8px;
+}
+
+/* Quick Metrics Panel */
+.quick-metrics-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Secondary Monitoring Row */
+.monitoring-panels-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Status Badge States */
+.status-active { background: #DCFCE7; color: #166534; }
+.status-gray { background: #F3F4F6; color: #6B7280; }
+
+/* Responsive - Tablet */
 @media (max-width: 1200px) {
-  .monitoring-grid {
-    grid-template-columns: 1fr;
+  .primary-control-grid {
+    grid-template-columns: auto 1fr;
   }
-  .optimization-grid {
+  
+  .compact-video-wrapper {
+    max-width: 360px;
+  }
+  
+  .quick-metrics-panel {
+    grid-column: 1 / -1;
+  }
+  
+  .monitoring-panels-row {
     grid-template-columns: 1fr;
   }
 }
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .primary-control-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .compact-video-wrapper {
+    max-width: 100%;
+  }
+  
+  .monitoring-panels-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+

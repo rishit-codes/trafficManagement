@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
 
-const AlertsPanel = ({ alerts = [], loading = false, error = null }) => {
+const AlertsPanel = ({ alerts = [], loading = false, error = null, onAlertClick }) => {
   
   // Format relative time
   const formatTime = (isoString) => {
@@ -15,16 +15,7 @@ const AlertsPanel = ({ alerts = [], loading = false, error = null }) => {
       return '1 day+ ago';
   };
 
-  // No demo alerts.
   const displayAlerts = alerts;
-
-  // If online but strictly no alerts, show empty state (handled below in render)
-  // But if using demoAlerts due to error, we use that.
-  
-  // Override: If passing empty list from parent because truly no alerts, displayAlerts is empty.
-  // If error is present, we used demoAlerts.
-  // Wait, if error is present, displayAlerts = demoAlerts. Correct.
-  // If alerts is empty and NO error, displayAlerts = []. Correct.
 
   if (loading && alerts.length === 0) {
       return <div className="dashboard-card alerts-panel">Loading alerts...</div>;
@@ -45,11 +36,17 @@ const AlertsPanel = ({ alerts = [], loading = false, error = null }) => {
         ) : (
           displayAlerts.map((alert, idx) => {
             const severity = alert.severity ? alert.severity.toUpperCase() : 'INFO';
-            // Handle different ID possibilities
             const key = alert.id || alert.junction_id + idx;
             
             return (
-              <div key={key} className={`alert-item ${severity === 'CRITICAL' || severity === 'HIGH' ? 'alert-critical' : 'alert-warning'}`}>
+              <div 
+                key={key} 
+                className={`alert-item ${severity === 'CRITICAL' || severity === 'HIGH' ? 'alert-critical' : 'alert-warning'}`}
+                onClick={() => onAlertClick && onAlertClick(alert)}
+                style={{ cursor: 'pointer' }}
+                role="button"
+                tabIndex={0}
+              >
                 <div className="alert-top">
                   <span className={`alert-badge ${severity.toLowerCase()}`}>
                     {severity}
@@ -63,7 +60,7 @@ const AlertsPanel = ({ alerts = [], loading = false, error = null }) => {
                 </div>
 
                 <div className="alert-footer">
-                  <a href="#" className="alert-link">View details →</a>
+                  <span className="alert-link">View detailsbox →</span>
                 </div>
               </div>
             );

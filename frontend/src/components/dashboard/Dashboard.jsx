@@ -8,27 +8,35 @@ import TrafficTrend from './TrafficTrend';
 import LiveCameraPanel from './LiveCameraPanel';
 import './Dashboard.css';
 
+import { useNavigate } from 'react-router-dom';
+
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [junctions, setJunctions] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [trendData, setTrendData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Interactive State
-  const [selectedJunction, setSelectedJunction] = useState(null);
+  // Note: Local selection state removed in favor of URL-driven navigation to /junction/:id
 
   const fetchAlerts = async (junctionList) => {
     if (!junctionList || junctionList.length === 0) return;
     
     // Simplification for pilot: fetch alerts for J001-J005 if they exist in backend
     try {
-      // Logic same as before...
+      // Loop through pilot junctions to get anomalies
       const simplePromises = junctionList.map(async (j) => {
           try {
               const anomalies = await getAnomalies(j.id);
               if (Array.isArray(anomalies)) {
-                  return anomalies.map(a => ({ ...a, junction: j.name }));
+                  // Inject pilot metadata into alert for clickable navigation
+                  return anomalies.map(a => ({ 
+                      ...a, 
+                      junction: j.name,
+                      junctionId: j.id, // Critical for selection
+                      sourceJunction: j // Direct reference
+                  }));
               }
               return [];
           } catch (e) {
@@ -48,6 +56,17 @@ const Dashboard = () => {
       if (Array.isArray(history)) setTrendData(history);
     } catch (err) {
       console.error("Failed to fetch trend:", err);
+    }
+  };
+
+  // Handler for Alert Clicks - Navigates to Detail Page
+  const handleAlertClick = (alert) => {
+    // Determine the target junction from the alert
+    // Use injected junctionId or fallback to direct name match
+    const target = alert.sourceJunction || pilotJunctions.find(j => j.id === alert.junctionId);
+    
+    if (target) {
+       navigate(`/junction/${target.id}`);
     }
   };
 
@@ -107,21 +126,25 @@ const Dashboard = () => {
         <KpiCards junctions={junctions} loading={loading} />
       </section>
 
-      {/* 3. Map & Camera & Alerts Section */}
+      {/* 3. Map & Alerts Section (Camera moved to Detail view) */}
       <section className="dashboard-section map-alerts-row">
         <div className="dashboard-column map-column">
           <CityMap 
              junctions={junctions} 
              loading={loading} 
-             onJunctionSelect={setSelectedJunction}
-             selectedId={selectedJunction?.id}
+             onJunctionSelect={(j) => navigate(`/junction/${j.id}`)}
+             selectedId={null} 
           />
         </div>
         
-        {/* Right Column: Camera + Alerts */}
+        {/* Right Column: Alerts Only */}
         <div className="dashboard-column right-column">
-          <LiveCameraPanel junction={selectedJunction} />
-          <AlertsPanel alerts={alerts} loading={loading} error={error} />
+          <AlertsPanel 
+            alerts={alerts} 
+            loading={loading} 
+            error={error} 
+            onAlertClick={handleAlertClick}
+          />
         </div>
       </section>
 

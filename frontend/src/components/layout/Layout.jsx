@@ -3,10 +3,10 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import './Layout.css';
 
-const Layout = ({ children, currentView, onNavigate }) => {
+const Layout = ({ children }) => {
   return (
     <div className="layout">
-      <Sidebar currentView={currentView} onNavigate={onNavigate} />
+      <Sidebar />
       <div className="main-area">
         <Header />
         <main className="content-area">

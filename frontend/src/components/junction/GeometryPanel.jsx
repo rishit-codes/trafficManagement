@@ -2,33 +2,11 @@ import React from 'react';
 
 const GeometryPanel = () => {
   return (
-    <div className="detail-panel">
-      <h4 className="panel-title">Physical Geometry</h4>
-      
-      <div className="metric-row">
-        <span className="metric-label">Configuration</span>
-        <span className="metric-value">4-Way Signalized</span>
-      </div>
-      
-      <div className="metric-row">
-        <span className="metric-label">Total Lanes</span>
-        <span className="metric-value">12 (3 per arm)</span>
-      </div>
-
-      <div className="metric-row">
-        <span className="metric-label">Lane Width</span>
-        <span className="metric-value warning-text">2.8m (Narrow)</span>
-      </div>
-
-      <div className="metric-row">
-        <span className="metric-label">Heavy Vehicle %</span>
-        <span className="metric-value">18%</span>
-      </div>
-
-      <div className="metric-row">
-        <span className="metric-label">Pedestrian Xing</span>
-        <span className="metric-value">Yes (All Approaches)</span>
-      </div>
+    <div className="detail-panel" style={{ minHeight: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', background: 'white' }}>
+      <h4 className="panel-title" style={{ marginBottom: '12px' }}>Junction Geometry</h4>
+      <p style={{ fontSize: '13px', color: '#6B7280', maxWidth: '80%' }}>
+        Detailed geometric configuration data is not available for this site.
+      </p>
     </div>
   );
 };

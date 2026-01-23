@@ -1,0 +1,150 @@
+/* TrafficSignal.css - Traffic light visualization styles */
+
+.traffic-signal-panel {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.traffic-signal-panel h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.traffic-signal-panel.empty-state,
+.traffic-signal-panel.loading {
+  text-align: center;
+  color: #6b7280;
+}
+
+.traffic-signal-panel .unavailable-message {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Signal Display Container */
+.signal-display {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Three-light vertical signal */
+.signal-lights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #1f2937;
+  padding: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.signal-light {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Inactive states (dimmed) */
+.signal-light.red {
+  background: #4a1a1a;
+}
+
+.signal-light.yellow {
+  background: #4a3a1a;
+}
+
+.signal-light.green {
+  background: #1a3a2a;
+}
+
+/* Active states (bright) */
+.signal-light.red.active {
+  background: #DC2626;
+  box-shadow: 
+    0 0 20px rgba(220, 38, 38, 0.6),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.2);
+}
+
+.signal-light.yellow.active {
+  background: #D97706;
+  box-shadow: 
+    0 0 20px rgba(217, 119, 6, 0.6),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.2);
+}
+
+.signal-light.green.active {
+  background: #059669;
+  box-shadow: 
+    0 0 20px rgba(5, 150, 105, 0.6),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.2);
+}
+
+/* Signal Info */
+.signal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.phase-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.phase-name.phase-red {
+  color: #DC2626;
+}
+
+.phase-name.phase-yellow {
+  color: #D97706;
+}
+
+.phase-name.phase-green {
+  color: #059669;
+}
+
+.time-remaining {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.time-remaining .countdown {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-remaining .unit {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .signal-lights {
+    padding: 0.5rem;
+  }
+  
+  .signal-light {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .time-remaining .countdown {
+    font-size: 1.5rem;
+  }
+}

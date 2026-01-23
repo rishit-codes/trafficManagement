@@ -1,7 +1,26 @@
-import React from 'react';
-import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Dashboard.css';
+
+// Component to handle map animation
+const MapEffect = ({ selectedId, junctions }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!selectedId) return;
+    
+    const target = junctions.find(j => j.id === selectedId);
+    if (target && target.lat && target.lng) {
+      map.flyTo([target.lat, target.lng], 15, {
+        animate: true,
+        duration: 1.5 // Smooth flight
+      });
+    }
+  }, [selectedId, junctions, map]);
+
+  return null;
+};
 
 const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId }) => {
   const position = [22.3072, 73.1812]; // Vadodara Center
@@ -39,6 +58,8 @@ const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, HOT'
             url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
           />
+
+          <MapEffect selectedId={selectedId} junctions={junctions} />
           
           {junctions && junctions.length > 0 ? (
             junctions
