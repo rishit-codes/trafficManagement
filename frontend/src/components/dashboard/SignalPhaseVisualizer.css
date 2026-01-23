@@ -1,0 +1,178 @@
+/* SignalPhaseVisualizer.css */
+
+.signal-card {
+    height: 100%;
+    min-height: 250px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.signal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.live-tag {
+    font-size: 10px;
+    font-weight: 800;
+    color: #10B981;
+    background: #ECFDF5;
+    padding: 4px 8px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+}
+
+.pulse-dot-small {
+    width: 6px;
+    height: 6px;
+    background: #10B981;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+}
+
+.signal-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    gap: 16px;
+}
+
+/* Info Section */
+.signal-info {
+    flex: 1;
+}
+
+.info-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #6B7280;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.mt-2 {
+    margin-top: 16px;
+}
+
+.info-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.confidence-meter {
+    height: 6px;
+    background: #E5E7EB;
+    border-radius: 3px;
+    width: 100%;
+    overflow: hidden;
+    margin-top: 6px;
+    margin-bottom: 4px;
+}
+
+.confidence-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #10B981, #059669);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.confidence-text {
+    font-size: 12px;
+    color: #059669;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Traffic Light Visual */
+.traffic-light-container {
+    background: #1f2937;
+    padding: 12px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.light {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #374151;
+    transition: all 0.3s;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.light.red.active {
+    background: #EF4444;
+    box-shadow: 0 0 15px #EF4444;
+}
+
+.light.yellow.active {
+    background: #F59E0B;
+    box-shadow: 0 0 15px #F59E0B;
+}
+
+.light.green.active {
+    background: #10B981;
+    box-shadow: 0 0 15px #10B981;
+}
+
+/* Timer */
+.timer-display {
+    text-align: center;
+    background: #F3F4F6;
+    padding: 12px;
+    border-radius: 12px;
+    min-width: 80px;
+}
+
+.timer-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111827;
+    font-feature-settings: "tnum";
+    line-height: 1;
+}
+
+.timer-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #6B7280;
+    margin-top: 4px;
+    font-weight: 700;
+}
+
+/* Footer */
+.signal-footer {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #F3F4F6;
+}
+
+.metric-pill {
+    font-size: 11px;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: #4B5563;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}

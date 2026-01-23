@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 
-const KpiCards = ({ junctions = [], loading = false }) => {
+const KpiCards = ({ junctions = [], loading = false, avgWaitTime = 0, spillbackCount = 0 }) => {
   // Calculate specific metrics from junctions data
   const total = junctions.length;
   const optimal = junctions.filter(j => j.status === 'optimal').length;
   const warning = junctions.filter(j => j.status === 'warning').length;
   const critical = junctions.filter(j => j.status === 'critical').length;
-  
+
   // Calculate efficiency based on optimal ratio (mock calculation)
   const efficiency = total > 0 ? Math.round(((optimal + (warning * 0.5)) / total) * 100) : 0;
 
@@ -29,7 +29,7 @@ const KpiCards = ({ junctions = [], loading = false }) => {
         <div className="kpi-subtext">Online status</div>
         <div className="kpi-breakdown">
           {hasData ? junctions.map((j, i) => (
-             <span key={i} className={`dot dot-${j.status === 'critical' ? 'red' : j.status === 'warning' ? 'amber' : 'green'}`} title={`${j.name}: ${j.status}`}></span>
+            <span key={i} className={`dot dot-${j.status === 'critical' ? 'red' : j.status === 'warning' ? 'amber' : 'green'}`} title={`${j.name}: ${j.status}`}></span>
           )) : <span className="kpi-empty-text">Data unavailable</span>}
         </div>
       </div>
@@ -38,11 +38,10 @@ const KpiCards = ({ junctions = [], loading = false }) => {
       <div className="dashboard-card kpi-card">
         <h3 className="kpi-title">Average Wait Time</h3>
         <div className="kpi-main">
-          {/* Honest: No live wait time data yet */}
-          <span className="kpi-value">--</span>
+          <span className="kpi-value">{hasData && avgWaitTime > 0 ? `${avgWaitTime}s` : '--'}</span>
         </div>
         <div className="kpi-footer">
-           <span className="kpi-subtext">Baselining in progress...</span>
+          <span className="kpi-subtext">Real-time system average</span>
         </div>
       </div>
 
@@ -50,11 +49,14 @@ const KpiCards = ({ junctions = [], loading = false }) => {
       <div className="dashboard-card kpi-card">
         <h3 className="kpi-title">Active Spillback Events</h3>
         <div className="kpi-main">
-          {/* Honest: No live spillback monitoring */}
-          <span className="kpi-value">--</span>
+          <span className={`kpi-value ${spillbackCount > 0 ? 'text-red' : ''}`}>
+            {hasData ? spillbackCount : '--'}
+          </span>
         </div>
         <div className="kpi-footer">
-          <span className="kpi-subtext">Real-time alerts inactive</span>
+          <span className="kpi-subtext">
+            {spillbackCount > 0 ? 'Urgent attention required' : 'Risk levels nominal'}
+          </span>
         </div>
       </div>
 
