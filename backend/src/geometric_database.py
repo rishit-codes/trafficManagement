@@ -228,6 +228,8 @@ class GeometricDatabase:
                 d: {
                     "lanes": a.lanes,
                     "width_m": a.width_m,
+                    "turn_radius_m": a.turn_radius_m,
+                    "storage_length_m": a.storage_length_m,
                     "saturation_flow": round(a.saturation_flow, 0),
                     "fw": round(a.fw, 2),
                     "fHV": round(a.fHV, 2),

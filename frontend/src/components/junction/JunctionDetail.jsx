@@ -6,6 +6,8 @@ import SpillbackPanel from './SpillbackPanel';
 import OptimizationPanel from './OptimizationPanel';
 import TrafficSignal4Way from './TrafficSignal4Way';
 import LiveCameraPanel from '../dashboard/LiveCameraPanel';
+import MultiCameraGrid from './MultiCameraGrid';
+import AnalyticsChart from './AnalyticsChart';
 import { getJunctionById, getJunctionState } from '../../services/api';
 import { pilotJunctions } from '../../data/pilotJunctions';
 import './JunctionDetail.css';
@@ -13,10 +15,10 @@ import './JunctionDetail.css';
 const JunctionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // Use URL param as source of truth, fallback to first pilot junction
   const selectedId = id || pilotJunctions[0]?.id;
-  
+
   // Junction data state
   const [junctionData, setJunctionData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -85,24 +87,24 @@ const JunctionDetail = () => {
       <div className="junction-header">
         <div className="header-left">
           <div className="junction-selector">
-             <select 
-                className="junction-select"
-                value={selectedId} 
-                onChange={(e) => navigate(`/junction/${e.target.value}`)}
-             >
-                {pilotJunctions.map(j => (
-                    <option key={j.id} value={j.id}>{j.name}</option>
-                ))}
-             </select>
+            <select
+              className="junction-select"
+              value={selectedId}
+              onChange={(e) => navigate(`/junction/${e.target.value}`)}
+            >
+              {pilotJunctions.map(j => (
+                <option key={j.id} value={j.id}>{j.name}</option>
+              ))}
+            </select>
           </div>
-          
+
           <span className="junction-id">ID: {selectedId}</span>
-          
+
           <span className={`status-badge status-${junctionData ? 'active' : 'gray'}`}>
-             {junctionData ? 'ONLINE' : 'DATA OFFLINE'}
+            {junctionData ? 'ONLINE' : 'DATA OFFLINE'}
           </span>
         </div>
-        
+
         <div className="header-right">
           <span className="last-updated">
             {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString()}` : 'Waiting for connection...'}
@@ -112,7 +114,7 @@ const JunctionDetail = () => {
 
       {/* 2. Content Body */}
       {loading && !junctionData && !error && (
-          <div className="detail-section loading">Connecting to junction...</div>
+        <div className="detail-section loading">Connecting to junction...</div>
       )}
 
       {/* Primary Row: Always Visible (Video works independently of backend data) */}
@@ -120,7 +122,7 @@ const JunctionDetail = () => {
         <h3 className="section-title">Live Signal Status</h3>
         <div className="primary-control-grid">
           {/* LEFT: 4-Way Traffic Signal (Handles its own error state) */}
-          <TrafficSignal4Way 
+          <TrafficSignal4Way
             currentPhase={signalState?.current_phase || null}
             activeDirections={signalState?.active_directions || []}
             timeRemaining={signalState?.time_remaining || 0}
@@ -128,12 +130,15 @@ const JunctionDetail = () => {
             loading={signalLoading}
             error={signalError}
           />
-          
-          {/* CENTER: Compact Video Feed (Static mapping, always works) */}
+
+          {/* CENTER: 4-Way Video Grid */}
           <div className="compact-video-wrapper">
-            <LiveCameraPanel junction={selectedPilotJunction} />
+            <MultiCameraGrid
+              junction={selectedPilotJunction}
+              signalState={signalState}
+            />
           </div>
-          
+
           {/* RIGHT: Quick Metrics */}
           <div className="quick-metrics-panel">
             <GeometryPanel data={junctionData} />
@@ -143,19 +148,22 @@ const JunctionDetail = () => {
 
       {/* Secondary Row: Only visible if we have backend data */}
       {(error || (!loading && !junctionData)) ? (
-          <div className="detail-section empty-state">
-              <p>Additional telemetry unavailable for this junction.</p>
-              <p className="subtext">The backend controller for {selectedId} may be offline or unreachable.</p>
-          </div>
+        <div className="detail-section empty-state">
+          <p>Additional telemetry unavailable for this junction.</p>
+          <p className="subtext">The backend controller for {selectedId} may be offline or unreachable.</p>
+        </div>
       ) : (
         junctionData && (
           <section className="detail-section">
             <h3 className="section-title">Junction Monitoring</h3>
             <div className="monitoring-panels-row">
-              <TrafficMetrics state={signalState} />
-              <SpillbackPanel junctionId={selectedId} />
-              <OptimizationPanel junctionId={selectedId} />
+              <TrafficMetrics state={signalState} junctionData={junctionData} />
+              <SpillbackPanel junctionData={junctionData} />
+              <OptimizationPanel state={signalState} />
             </div>
+
+            {/* 3. Analytics Chart */}
+            <AnalyticsChart junctionId={selectedId} />
           </section>
         )
       )}

@@ -40,8 +40,18 @@
       "current_timing": {
         "cycle_length_s": 120,
         "phases": [
-          {"name": "NS", "green_s": 45, "yellow_s": 3, "red_s": 72},
-          {"name": "EW", "green_s": 45, "yellow_s": 3, "red_s": 72}
+          {
+            "name": "NS",
+            "green_s": 45,
+            "yellow_s": 3,
+            "red_s": 72
+          },
+          {
+            "name": "EW",
+            "green_s": 45,
+            "yellow_s": 3,
+            "red_s": 72
+          }
         ]
       }
     },
@@ -85,8 +95,18 @@
       "current_timing": {
         "cycle_length_s": 90,
         "phases": [
-          {"name": "NS", "green_s": 35, "yellow_s": 3, "red_s": 52},
-          {"name": "EW", "green_s": 35, "yellow_s": 3, "red_s": 52}
+          {
+            "name": "NS",
+            "green_s": 35,
+            "yellow_s": 3,
+            "red_s": 52
+          },
+          {
+            "name": "EW",
+            "green_s": 35,
+            "yellow_s": 3,
+            "red_s": 52
+          }
         ]
       }
     },
@@ -130,8 +150,134 @@
       "current_timing": {
         "cycle_length_s": 120,
         "phases": [
-          {"name": "NS", "green_s": 50, "yellow_s": 3, "red_s": 67},
-          {"name": "EW", "green_s": 40, "yellow_s": 3, "red_s": 77}
+          {
+            "name": "NS",
+            "green_s": 50,
+            "yellow_s": 3,
+            "red_s": 67
+          },
+          {
+            "name": "EW",
+            "green_s": 40,
+            "yellow_s": 3,
+            "red_s": 77
+          }
+        ]
+      }
+    },
+    "manjalpur_junction": {
+      "id": "J004",
+      "name": "Manjalpur Junction",
+      "coordinates": {
+        "lat": 22.2725,
+        "lon": 73.1894
+      },
+      "approaches": {
+        "north": {
+          "lanes": 2,
+          "width_m": 3.2,
+          "turn_radius_m": 10,
+          "storage_length_m": 120,
+          "heavy_vehicle_pct": 0.10
+        },
+        "south": {
+          "lanes": 2,
+          "width_m": 3.2,
+          "turn_radius_m": 10,
+          "storage_length_m": 120,
+          "heavy_vehicle_pct": 0.10
+        },
+        "east": {
+          "lanes": 2,
+          "width_m": 3.0,
+          "turn_radius_m": 8,
+          "storage_length_m": 100,
+          "heavy_vehicle_pct": 0.12
+        },
+        "west": {
+          "lanes": 2,
+          "width_m": 3.0,
+          "turn_radius_m": 8,
+          "storage_length_m": 100,
+          "heavy_vehicle_pct": 0.12
+        }
+      },
+      "current_timing": {
+        "cycle_length_s": 100,
+        "phases": [
+          {
+            "name": "NS",
+            "green_s": 40,
+            "yellow_s": 3,
+            "red_s": 57
+          },
+          {
+            "name": "EW",
+            "green_s": 35,
+            "yellow_s": 3,
+            "red_s": 62
+          }
+        ]
+      }
+    },
+    "gotri_circle": {
+      "id": "J005",
+      "name": "Gotri Circle",
+      "coordinates": {
+        "lat": 22.3170,
+        "lon": 73.1485
+      },
+      "approaches": {
+        "north": {
+          "lanes": 2,
+          "width_m": 3.5,
+          "turn_radius_m": 18,
+          "storage_length_m": 140,
+          "heavy_vehicle_pct": 0.08
+        },
+        "south": {
+          "lanes": 2,
+          "width_m": 3.5,
+          "turn_radius_m": 18,
+          "storage_length_m": 140,
+          "heavy_vehicle_pct": 0.08
+        },
+        "east": {
+          "lanes": 2,
+          "width_m": 3.3,
+          "turn_radius_m": 15,
+          "storage_length_m": 130,
+          "heavy_vehicle_pct": 0.10
+        },
+        "west": {
+          "lanes": 2,
+          "width_m": 3.3,
+          "turn_radius_m": 15,
+          "storage_length_m": 130,
+          "heavy_vehicle_pct": 0.10
+        }
+      },
+      "current_timing": {
+        "cycle_length_s": 110,
+        "phases": [
+          {
+            "name": "NS",
+            "green_s": 30,
+            "yellow_s": 3,
+            "red_s": 77
+          },
+          {
+            "name": "EW",
+            "green_s": 30,
+            "yellow_s": 3,
+            "red_s": 77
+          },
+          {
+            "name": "All-Red",
+            "green_s": 0,
+            "yellow_s": 0,
+            "red_s": 110
+          }
         ]
       }
     }

@@ -1,0 +1,113 @@
+.camera-grid-container {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 16px;
+    height: 100%;
+}
+
+.camera-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.live-badge {
+    font-size: 10px;
+    color: #16A34A;
+    background: #ECFDF5;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.four-way-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    aspect-ratio: 16/9;
+    /* Maintain aspect ratio for the whole grid */
+}
+
+.camera-quadrant {
+    position: relative;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.quad-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+}
+
+.camera-overlay {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.cam-dir {
+    font-size: 9px;
+    font-weight: 800;
+    color: #FCD34D;
+    /* Amber for visibility */
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1px 4px;
+    border-radius: 2px;
+}
+
+.cam-label {
+    font-size: 8px;
+    color: white;
+    font-family: monospace;
+}
+
+.cam-dir.dir-green {
+    background: #059669;
+    color: white;
+}
+
+.cam-dir.dir-red {
+    background: #DC2626;
+    color: white;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.dot-green {
+    background: #10B981;
+    box-shadow: 0 0 8px #10B981;
+}
+
+.dot-red {
+    background: #EF4444;
+}
+
+.cam-frozen .quad-video {
+    filter: grayscale(80%) brightness(0.8);
+    transition: filter 0.5s ease;
+}
+
+.cam-active .quad-video {
+    filter: none;
+    transition: filter 0.5s ease;
+}
