@@ -1,114 +1,72 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Tooltip, Popup } from 'react-leaflet';
-import { Badge, Card } from '../common';
-import './dashboard.css';
+import React from 'react';
+import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import './Dashboard.css';
 
-const junctions = [
-  { id: 'J001', name: 'Alkapuri Circle', coords: [22.3103, 73.1723], status: 'optimal', flowRatio: 0.65, pcu: 1240 },
-  { id: 'J002', name: 'Fatehgunj', coords: [22.3219, 73.1851], status: 'optimal', flowRatio: 0.58, pcu: 980 },
-  { id: 'J003', name: 'Sayajigunj', coords: [22.3149, 73.1927], status: 'warning', flowRatio: 0.78, pcu: 1560 },
-  { id: 'J004', name: 'Manjalpur', coords: [22.2711, 73.1892], status: 'critical', flowRatio: 0.92, pcu: 1840 },
-  { id: 'J005', name: 'Gotri', coords: [22.3301, 73.1456], status: 'optimal', flowRatio: 0.45, pcu: 720 },
-  { id: 'J006', name: 'Karelibaug', coords: [22.3089, 73.2012], status: 'warning', flowRatio: 0.82, pcu: 1680 },
-  { id: 'J007', name: 'Old City', coords: [22.2989, 73.2090], status: 'offline', flowRatio: 0, pcu: 0 },
-];
+const CityMap = () => {
+  const position = [22.3072, 73.1812]; // Vadodara Center
 
-const statusColors = {
-  optimal: '#16A34A', // Green
-  warning: '#F59E0B', // Amber
-  critical: '#DC2626', // Red
-  offline: '#94A3B8', // Gray
-};
+  const junctions = [
+    { id: 1, name: 'Market Rd / 4th Ave', pos: [22.3072, 73.1812], status: 'critical', flow: 1.2 },
+    { id: 2, name: 'Main St / Central', pos: [22.3100, 73.1850], status: 'warning', flow: 0.85 },
+    { id: 3, name: 'Tech Park East', pos: [22.3050, 73.1780], status: 'warning', flow: 0.9 },
+    { id: 4, name: 'North Ring Road', pos: [22.3150, 73.1800], status: 'optimal', flow: 0.4 },
+    { id: 5, name: 'South Gate', pos: [22.2980, 73.1820], status: 'optimal', flow: 0.3 },
+  ];
 
-const statusVariants = {
-  optimal: 'success',
-  warning: 'warning',
-  critical: 'danger',
-  offline: 'default',
-};
-
-const filters = [
-    { id: 'all', label: 'All' },
-    { id: 'critical', label: 'Critical' },
-    { id: 'warning', label: 'Warning' },
-    { id: 'optimal', label: 'Optimal' },
-    { id: 'offline', label: 'Offline' },
-];
-
-function CityMap() {
-  const [activeFilter, setActiveFilter] = useState('all');
-
-  const filteredJunctions = junctions.filter(j => 
-    activeFilter === 'all' || j.status === activeFilter
-  );
+  const getColor = (status) => {
+    switch (status) {
+      case 'critical': return '#DC2626';
+      case 'warning': return '#D97706';
+      case 'optimal': return '#059669';
+      default: return '#9CA3AF';
+    }
+  };
 
   return (
-    <Card className="city-map-card">
-      <div className="map-header-row">
-        <div>
-            <h3 className="section-title">Junction Status Map</h3>
-            <p className="section-subtitle">Live status across Vadodara</p>
-        </div>
-        <div className="map-filters">
-            {filters.map(filter => (
-                <button 
-                    key={filter.id}
-                    className={`filter-tab ${activeFilter === filter.id ? 'active' : ''}`}
-                    onClick={() => setActiveFilter(filter.id)}
-                >
-                    {filter.label}
-                </button>
-            ))}
-        </div>
-      </div>
-      
-      <div className="map-wrapper-govt">
-        <MapContainer
-          center={[22.3072, 73.1812]}
-          zoom={13}
-          scrollWheelZoom={true}
-          style={{ height: '100%', width: '100%', borderRadius: '8px', zIndex: 0 }}
-        >
+    <div className="dashboard-card map-container-card">
+      <div className="map-wrapper">
+        <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           />
-          {filteredJunctions.map((junction) => (
-            <CircleMarker
-              key={junction.id}
-              center={junction.coords}
+          
+          {junctions.map(j => (
+            <CircleMarker 
+              key={j.id} 
+              center={j.pos}
               radius={8}
-              pathOptions={{
-                fillColor: statusColors[junction.status],
-                fillOpacity: 1,
-                color: '#FFFFFF',
-                weight: 2,
+              pathOptions={{ 
+                color: '#fff', 
+                fillColor: getColor(j.status), 
+                fillOpacity: 1, 
+                weight: 2 
+              }}
+              eventHandlers={{
+                click: () => console.log(`Junction clicked: ${j.id}`)
               }}
             >
-              <Tooltip direction="top" offset={[0, -10]} opacity={1} className="govt-tooltip">
-                <div className="map-tooltip-content">
-                  <div className="tooltip-header">
-                    <strong>{junction.name}</strong>
-                    <Badge variant={statusVariants[junction.status]}>
-                      {junction.status}
-                    </Badge>
+              <Tooltip direction="top" offset={[0, -8]} opacity={1}>
+                <div className="map-tooltip">
+                  <strong>{j.name}</strong>
+                  <div style={{ color: getColor(j.status), textTransform: 'capitalize' }}>
+                    ● {j.status}
                   </div>
-                  <div className="tooltip-row">
-                    <span>Flow Ratio:</span>
-                    <span>Y = {junction.flowRatio.toFixed(2)}</span>
-                  </div>
-                  <div className="tooltip-row">
-                    <span>Throughput:</span>
-                    <span>{junction.pcu} PCU/hr</span>
-                  </div>
+                  <div>Flow: {j.flow}</div>
                 </div>
               </Tooltip>
             </CircleMarker>
           ))}
         </MapContainer>
       </div>
-    </Card>
+      <div className="map-legend">
+        <div className="legend-item"><span className="dot dot-green"></span> Optimal</div>
+        <div className="legend-item"><span className="dot dot-amber"></span> Warning</div>
+        <div className="legend-item"><span className="dot dot-red"></span> Critical</div>
+      </div>
+    </div>
   );
-}
+};
 
 export default CityMap;

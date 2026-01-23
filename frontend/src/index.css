@@ -1,11 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+:root {
+  /* Colors */
+  --bg-app: #F9FAFB;
+  --bg-surface: #FFFFFF;
+  --primary-blue: #1E40AF;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --border-color: #E5E7EB;
+  --color-critical: #DC2626;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+  /* Typography */
+  --font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  
+  /* Spacing */
+  --sidebar-width: 260px;
+  --header-height: 64px;
+  --page-padding: 32px;
+  --border-radius: 8px;
 
-@layer base {
-  body {
-    @apply bg-gray-50 text-gray-900;
-  }
+  /* Animation */
+  --transition-speed: 200ms;
+  --transition-ease: ease-out;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
 }
