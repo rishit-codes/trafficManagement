@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getJunctions, getAnomalies, getTrafficHistory } from '../../services/api';
+import { checkSpillback } from '../../services/spillbackService';
 import { pilotJunctions } from '../../data/pilotJunctions';
 import KpiCards from './KpiCards';
 import CityMap from './CityMap';
@@ -20,36 +21,6 @@ const Dashboard = () => {
   
   // Note: Local selection state removed in favor of URL-driven navigation to /junction/:id
 
-  const fetchAlerts = async (junctionList) => {
-    if (!junctionList || junctionList.length === 0) return;
-    
-    // Simplification for pilot: fetch alerts for J001-J005 if they exist in backend
-    try {
-      // Loop through pilot junctions to get anomalies
-      const simplePromises = junctionList.map(async (j) => {
-          try {
-              const anomalies = await getAnomalies(j.id);
-              if (Array.isArray(anomalies)) {
-                  // Inject pilot metadata into alert for clickable navigation
-                  return anomalies.map(a => ({ 
-                      ...a, 
-                      junction: j.name,
-                      junctionId: j.id, // Critical for selection
-                      sourceJunction: j // Direct reference
-                  }));
-              }
-              return [];
-          } catch (e) {
-              return [];
-          }
-      });
-      const nestedAlerts = await Promise.all(simplePromises);
-      setAlerts(nestedAlerts.flat());
-    } catch (err) {
-      console.error("Failed to fetch alerts", err);
-    }
-  };
-
   const fetchTrend = async (junctionId) => {
     try {
       const history = await getTrafficHistory(junctionId);
@@ -61,10 +32,7 @@ const Dashboard = () => {
 
   // Handler for Alert Clicks - Navigates to Detail Page
   const handleAlertClick = (alert) => {
-    // Determine the target junction from the alert
-    // Use injected junctionId or fallback to direct name match
     const target = alert.sourceJunction || pilotJunctions.find(j => j.id === alert.junctionId);
-    
     if (target) {
        navigate(`/junction/${target.id}`);
     }
@@ -73,28 +41,92 @@ const Dashboard = () => {
   useEffect(() => {
     let intervalId;
 
+    const fetchDashboardData = async () => {
+      if (!pilotJunctions || pilotJunctions.length === 0) return;
+      
+      try {
+        // Create a copy of junctions to update their status
+        const updatedJunctions = [...pilotJunctions];
+        const currentAlerts = [];
+
+        // 1. Fetch Spillback Risks & Update Map Status
+        const spillbackPromises = updatedJunctions.map(async (junction, index) => {
+            try {
+                // PILOT SIMULATION: In a real deployment, we would fetch live sensor data here.
+                // For this pilot, we send a baseline 'safe' queue length (12) to verify connectivity 
+                // and backend logic without triggering false alarms.
+                // To TEST alerts: Manually increase this value or use the backend/docs to trigger.
+                const payload = { 
+                    queue_length: 12,  // Baseline safe value
+                    approach: 'NORTH',
+                    storage_capacity: 100 // Default capacity for pilot
+                };
+                
+                const result = await checkSpillback(junction.id, payload);
+                
+                // Map Backend Status to Frontend UI Status
+                // Backend: NORMAL, WARNING, CRITICAL, SPILLBACK
+                // Frontend Map: optimal, warning, critical
+                let mapStatus = 'optimal';
+                if (result.status === 'CRITICAL' || result.status === 'SPILLBACK') mapStatus = 'critical';
+                else if (result.status === 'WARNING') mapStatus = 'warning';
+                
+                // Update the junction object for the map
+                updatedJunctions[index] = { ...junction, status: mapStatus };
+
+                // If risk detected, add to alerts
+                if (mapStatus !== 'optimal') {
+                    currentAlerts.push({
+                        id: `spill-${junction.id}`, // Deduplicate by ID
+                        junctionId: junction.id,
+                        junction: junction.name,
+                        sourceJunction: junction,
+                        severity: mapStatus.toUpperCase(),
+                        message: result.message || `High congestion detected on ${result.affected_approach || 'approach'}`,
+                        timestamp: result.timestamp
+                    });
+                }
+            } catch (e) {
+                console.warn(`Spillback check failed for ${junction.id}`, e);
+                // Keep default status
+            }
+        });
+
+        await Promise.all(spillbackPromises);
+
+        // 2. Fetch Other Anomalies (Legacy/Other Systems)
+        // Merging with existing pattern if needed, but prioritizing Spillback for this task
+        try {
+           const legacyAnomalies = await getAnomalies('all'); // specific API call if exists
+           if (Array.isArray(legacyAnomalies)) {
+               currentAlerts.push(...legacyAnomalies);
+           }
+        } catch (e) { 
+           // Ignore legacy errors
+        }
+
+        setJunctions(updatedJunctions);
+        setAlerts(currentAlerts);
+
+      } catch (err) {
+        console.error("Dashboard data update failed", err);
+      }
+    };
+
     const initData = async () => {
       try {
         setLoading(true);
         
-        // PILOT DEPLOYMENT: Single Source of Truth
-        setJunctions(pilotJunctions);
+        // Initial Fetch
+        await fetchDashboardData();
         
-        // Verify backend connection
-        try {
-           await getJunctions();
-           setError(null);
-        } catch (e) {
-           setError("Backend connection verification failed");
-        }
-
-        fetchAlerts(pilotJunctions);
-        intervalId = setInterval(() => fetchAlerts(pilotJunctions), 10000);
+        // Start Polling
+        intervalId = setInterval(fetchDashboardData, 5000); // 5s poll as requested
         
         fetchTrend(pilotJunctions[0].id);
 
       } catch (err) {
-        console.error("Dashboard fetch error:", err);
+        console.error("Dashboard init error:", err);
         setError("System disconnected");
       } finally {
         setLoading(false);

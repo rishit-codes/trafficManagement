@@ -72,11 +72,11 @@ const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId
                     center={[j.lat, j.lng]}
                     radius={isSelected ? 14 : 10}
                     pathOptions={{ 
-                      color: isSelected ? '#2563EB' : '#fff', // Blue border if selected 
+                      color: isSelected ? '#2563EB' : (j.status === 'critical' ? '#DC2626' : '#fff'), 
                       fillColor: getColor(j.status), 
                       fillOpacity: 1, 
-                      weight: isSelected ? 4 : 2,
-                      className: isSelected ? 'marker-selected' : 'marker-standard' 
+                      weight: isSelected ? 4 : (j.status === 'critical' ? 3 : 2),
+                      className: isSelected ? 'marker-selected' : (j.status === 'critical' ? 'marker-critical' : 'marker-standard') 
                     }}
                     eventHandlers={{
                       click: () => onJunctionSelect && onJunctionSelect(j)

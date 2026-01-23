@@ -34,7 +34,7 @@ from backend.src.traffic_analytics import analytics
 from backend.src.traffic_forecaster import forecaster
 
 # Import additional routers
-from backend.api.routes import traffic_router, corridor_router, greenwave_router
+from backend.api.routes import traffic_router, corridor_router, greenwave_router, spillback_router
 
 # Global instances (initialized on startup)
 geo_db: GeometricDatabase = None
@@ -60,6 +60,10 @@ async def lifespan(app: FastAPI):
     spillback = SpillbackDetector(geo_db)
     controller = SignalController(backend="mock")
     controller.connect()
+    
+    # Expose components to app state for routers
+    app.state.spillback = spillback
+    
     print(f"Loaded {len(geo_db.list_junctions())} junctions")
     
     # Initialize historical data collection
@@ -95,6 +99,7 @@ app.add_middleware(
 app.include_router(traffic_router)
 app.include_router(corridor_router)
 app.include_router(greenwave_router)
+app.include_router(spillback_router)
 
 
 # ===== Health & Info Endpoints =====
@@ -214,21 +219,7 @@ async def apply_optimized_timing(junction_id: str, flows: Dict[str, float]):
 
 
 # ===== Spillback Endpoints =====
-
-@app.post("/spillback/{junction_id}", tags=["Spillback"])
-async def analyze_spillback(junction_id: str, queues: Dict[str, int]):
-    """
-    Analyze spillback risk for a junction.
-    
-    Args:
-        junction_id: Junction to analyze
-        queues: Queue lengths per approach, e.g. {"north": 15, "south": 12, "east": 35, "west": 8}
-    """
-    try:
-        status = spillback.analyze(junction_id, queues)
-        return spillback.to_dict(status)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+# Moved to backend/api/routes.py via spillback_router
 
 
 # ===== Emergency Endpoints =====

@@ -563,3 +563,19 @@ path.marker-selected {
     grid-template-columns: 1fr;
   }
 }
+
+/* Pulsing effect for critical markers */
+path.marker-critical {
+  stroke: #DC2626;
+  filter: drop-shadow(0 0 6px rgba(220, 38, 38, 0.6));
+  animation: pulse-border 2s infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+  cursor: pointer;
+}
+
+@keyframes pulse-border {
+  0% { stroke-width: 3px; stroke-opacity: 1; }
+  50% { stroke-width: 6px; stroke-opacity: 0.5; }
+  100% { stroke-width: 3px; stroke-opacity: 1; }
+}

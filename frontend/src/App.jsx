@@ -8,6 +8,7 @@ import ControlPanel from './components/control/ControlPanel';
 import LiveMonitoring from './components/monitoring/LiveMonitoring';
 
 function App() {
+
   return (
     <Layout>
       <Routes>
