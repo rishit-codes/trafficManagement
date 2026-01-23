@@ -28,6 +28,11 @@ from backend.src.spillback_detector import SpillbackDetector
 from backend.src.signal_controller import SignalController
 from backend.src.pcu_converter import PCUConverter
 
+# Import historical data modules
+from backend.src.data_collector import data_collector, SyntheticDataGenerator
+from backend.src.traffic_analytics import analytics
+from backend.src.traffic_forecaster import forecaster
+
 # Import additional routers
 from backend.api.routes import traffic_router, corridor_router, greenwave_router
 
@@ -57,9 +62,14 @@ async def lifespan(app: FastAPI):
     controller.connect()
     print(f"Loaded {len(geo_db.list_junctions())} junctions")
     
+    # Initialize historical data collection
+    data_collector.start_background_collection()
+    print("[OK] Historical data collection started")
+    
     yield  # Server runs here
     
     # Cleanup
+    data_collector.stop_background_collection()
     controller.disconnect()
     print("Traffic Management System shutdown complete")
 
@@ -159,6 +169,14 @@ async def optimize_junction(junction_id: str, flows: Dict[str, float]):
     """
     try:
         result = optimizer.optimize(junction_id, flows)
+        
+        # Store optimization data for historical analysis
+        data_collector.collect_optimization_data(
+            junction_id=junction_id,
+            flows=flows,
+            optimization_result=result.to_dict()
+        )
+        
         return result.to_dict()
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -281,6 +299,229 @@ async def convert_to_pcu(vehicle_counts: Dict[str, int]):
     return {
         "vehicle_counts": vehicle_counts,
         "total_pcu": pcu
+    }
+
+
+# ===== Historical Data Endpoints =====
+
+@app.get("/history/{junction_id}", tags=["Historical Data"])
+async def get_traffic_history(
+    junction_id: str,
+    hours: int = 24,
+    direction: str = None
+):
+    """
+    Get historical traffic data for a junction.
+    
+    Args:
+        junction_id: Junction to query
+        hours: Hours of history to retrieve (default: 24)
+        direction: Filter by direction (optional)
+    
+    Returns:
+        List of historical traffic records
+    """
+    from datetime import datetime, timedelta
+    from backend.src.database import traffic_store
+    
+    end_time = datetime.now()
+    start_time = end_time - timedelta(hours=hours)
+    
+    history = traffic_store.get_history(
+        junction_id=junction_id,
+        start_time=start_time,
+        end_time=end_time,
+        direction=direction,
+        limit=1000
+    )
+    
+    return {
+        "junction_id": junction_id,
+        "start_time": start_time.isoformat(),
+        "end_time": end_time.isoformat(),
+        "record_count": len(history),
+        "data": history
+    }
+
+
+@app.get("/analytics/patterns/{junction_id}", tags=["Analytics"])
+async def get_traffic_patterns(junction_id: str, pattern_type: str = "hourly"):
+    """
+    Get traffic patterns for a junction.
+    
+    Args:
+        junction_id: Junction to analyze
+        pattern_type: Type of pattern ('hourly' or 'daily')
+    
+    Returns:
+        Traffic patterns
+    """
+    if pattern_type == "hourly":
+        patterns = analytics.get_time_of_day_patterns(junction_id)
+        return {
+            "junction_id": junction_id,
+            "pattern_type": "hourly",
+            "patterns": patterns
+        }
+    elif pattern_type == "daily":
+        patterns = analytics.get_day_of_week_patterns(junction_id)
+        return {
+            "junction_id": junction_id,
+            "pattern_type": "daily",
+            "patterns": patterns
+        }
+    else:
+        raise HTTPException(status_code=400, detail="Invalid pattern_type. Use 'hourly' or 'daily'")
+
+
+@app.get("/analytics/anomalies/{junction_id}", tags=["Analytics"])
+async def detect_anomalies(junction_id: str, current_pcu: float, direction: str = None):
+    """
+    Detect if current traffic is anomalous.
+    
+    Args:
+        junction_id: Junction to analyze
+        current_pcu: Current PCU value
+        direction: Traffic direction (optional)
+    
+    Returns:
+        Anomaly detection results
+    """
+    result = analytics.detect_anomaly(
+        junction_id=junction_id,
+        current_pcu=current_pcu,
+        direction=direction
+    )
+    
+    return result
+
+
+@app.get("/analytics/performance/{junction_id}", tags=["Analytics"])
+async def get_performance_metrics(junction_id: str, days: int = 7):
+    """
+    Get performance metrics for a junction.
+    
+    Args:
+        junction_id: Junction to analyze
+        days: Number of days to analyze (default: 7)
+    
+    Returns:
+        Performance metrics
+    """
+    from datetime import datetime, timedelta
+    
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+    
+    metrics = analytics.calculate_performance_metrics(
+        junction_id=junction_id,
+        start_date=start_date,
+        end_date=end_date
+    )
+    
+    return metrics
+
+
+@app.post("/forecast/{junction_id}", tags=["Forecasting"])
+async def forecast_traffic(
+    junction_id: str,
+    horizon_minutes: int = 30,
+    method: str = "pattern"
+):
+    """
+    Forecast traffic for a junction.
+    
+    Args:
+        junction_id: Junction to forecast for
+        horizon_minutes: Minutes into the future (30 or 60)
+        method: Prediction method ('pattern', 'moving_avg', 'exponential')
+    
+    Returns:
+        Traffic forecast
+    """
+    if horizon_minutes <= 30:
+        forecast = forecaster.predict_next_30min(junction_id, method=method)
+    elif horizon_minutes <= 60:
+        forecast = forecaster.predict_next_hour(junction_id, method=method)
+    else:
+        raise HTTPException(status_code=400, detail="Horizon must be 30 or 60 minutes")
+    
+    return forecast
+
+
+@app.get("/forecast/{junction_id}/by-direction", tags=["Forecasting"])
+async def forecast_by_direction(
+    junction_id: str,
+    horizon_minutes: int = 30,
+    method: str = "pattern"
+):
+    """
+    Forecast traffic for all directions at a junction.
+    
+    Args:
+        junction_id: Junction to forecast for
+        horizon_minutes: Minutes into the future
+        method: Prediction method
+    
+    Returns:
+        Forecasts for each direction
+    """
+    forecasts = forecaster.predict_by_direction(
+        junction_id=junction_id,
+        minutes_ahead=horizon_minutes,
+        method=method
+    )
+    
+    return {
+        "junction_id": junction_id,
+        "horizon_minutes": horizon_minutes,
+        "method": method,
+        "forecasts": forecasts
+    }
+
+
+# ===== Data Management Endpoints =====
+
+@app.post("/data/generate-synthetic/{junction_id}", tags=["Data Management"])
+async def generate_synthetic_data(junction_id: str, days: int = 7):
+    """
+    Generate synthetic historical data for demo purposes.
+    
+    Args:
+        junction_id: Junction to generate data for
+        days: Number of days of history to generate
+    
+    Returns:
+        Number of records generated
+    """
+    count = SyntheticDataGenerator.generate_daily_pattern(
+        junction_id=junction_id,
+        days=days
+    )
+    
+    return {
+        "junction_id": junction_id,
+        "days_generated": days,
+        "records_created": count,
+        "message": f"Generated {count} synthetic traffic records"
+    }
+
+
+@app.get("/data/stats", tags=["Data Management"])
+async def get_data_stats():
+    """
+    Get database statistics.
+    
+    Returns:
+        Database statistics
+    """
+    from backend.src.database import traffic_store
+    
+    total_records = traffic_store.get_record_count()
+    
+    return {
+        "total_records": total_records,
+        "database_status": "operational"
     }
 
 

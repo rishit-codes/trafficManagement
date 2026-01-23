@@ -12,6 +12,7 @@ osmnx>=1.5.0                # OpenStreetMap data
 shapely>=2.0.0              # Geometry operations
 
 # Database
+sqlalchemy>=2.0.0           # ORM for database operations
 psycopg2-binary>=2.9.0      # PostgreSQL (optional)
 
 # SUMO Integration
