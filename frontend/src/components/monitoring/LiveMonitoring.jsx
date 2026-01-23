@@ -5,26 +5,12 @@ import { pilotJunctions } from '../../data/pilotJunctions';
 import './LiveMonitoring.css';
 
 const LiveMonitoring = () => {
-  // Explicitly defined demo videos as per requirements
-  const VIDEO_SOURCES = [
-    '/videos/trafficdemo8.mp4',
-    '/videos/trafficdemo7.mp4',
-    '/videos/trafficdemo6.mp4',
-    '/videos/trafficdemo5.mp4',
-    '/videos/trafficdemo4.mp4'
-  ];
-
-  // Map pilot data to video grid format with deterministic mapping
-  const videoFeeds = pilotJunctions.map((j, index) => {
-      // Use modulo to safely wrap around if we have more junctions than videos
-      const videoSrc = VIDEO_SOURCES[index % VIDEO_SOURCES.length];
-      
-      return {
-          id: j.id,
-          name: j.name,
-          src: videoSrc
-      };
-  });
+  // Map pilot data to video grid format
+  const videoFeeds = pilotJunctions.map(j => ({
+      id: j.id,
+      name: j.name,
+      src: j.video
+  }));
 
   return (
     <div className="monitoring-container">
