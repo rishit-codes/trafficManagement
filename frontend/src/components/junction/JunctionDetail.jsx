@@ -115,50 +115,48 @@ const JunctionDetail = () => {
           <div className="detail-section loading">Connecting to junction...</div>
       )}
 
+      {/* Primary Row: Always Visible (Video works independently of backend data) */}
+      <section className="detail-section">
+        <h3 className="section-title">Live Signal Status</h3>
+        <div className="primary-control-grid">
+          {/* LEFT: 4-Way Traffic Signal (Handles its own error state) */}
+          <TrafficSignal4Way 
+            currentPhase={signalState?.current_phase || null}
+            activeDirections={signalState?.active_directions || []}
+            timeRemaining={signalState?.time_remaining || 0}
+            displayName={signalState?.display_name || ''}
+            loading={signalLoading}
+            error={signalError}
+          />
+          
+          {/* CENTER: Compact Video Feed (Static mapping, always works) */}
+          <div className="compact-video-wrapper">
+            <LiveCameraPanel junction={selectedPilotJunction} />
+          </div>
+          
+          {/* RIGHT: Quick Metrics */}
+          <div className="quick-metrics-panel">
+            <GeometryPanel data={junctionData} />
+          </div>
+        </div>
+      </section>
+
+      {/* Secondary Row: Only visible if we have backend data */}
       {(error || (!loading && !junctionData)) ? (
           <div className="detail-section empty-state">
-              <p>Live data unavailable for this junction.</p>
+              <p>Additional telemetry unavailable for this junction.</p>
               <p className="subtext">The backend controller for {selectedId} may be offline or unreachable.</p>
           </div>
       ) : (
         junctionData && (
-            <>
-              {/* Primary Row: Signal | Video | Metrics */}
-              <section className="detail-section">
-                <h3 className="section-title">Live Signal Status</h3>
-                <div className="primary-control-grid">
-                  {/* LEFT: 4-Way Traffic Signal (Primary Focus) */}
-                  <TrafficSignal4Way 
-                    currentPhase={signalState?.current_phase || null}
-                    activeDirections={signalState?.active_directions || []}
-                    timeRemaining={signalState?.time_remaining || 0}
-                    displayName={signalState?.display_name || ''}
-                    loading={signalLoading}
-                    error={signalError}
-                  />
-                  
-                  {/* CENTER: Compact Video Feed */}
-                  <div className="compact-video-wrapper">
-                    <LiveCameraPanel junction={selectedPilotJunction} />
-                  </div>
-                  
-                  {/* RIGHT: Quick Metrics */}
-                  <div className="quick-metrics-panel">
-                    <GeometryPanel data={junctionData} />
-                  </div>
-                </div>
-              </section>
-
-              {/* Secondary Row: Additional Monitoring Panels */}
-              <section className="detail-section">
-                <h3 className="section-title">Junction Monitoring</h3>
-                <div className="monitoring-panels-row">
-                  <TrafficMetrics state={signalState} />
-                  <SpillbackPanel junctionId={selectedId} />
-                  <OptimizationPanel junctionId={selectedId} />
-                </div>
-              </section>
-            </>
+          <section className="detail-section">
+            <h3 className="section-title">Junction Monitoring</h3>
+            <div className="monitoring-panels-row">
+              <TrafficMetrics state={signalState} />
+              <SpillbackPanel junctionId={selectedId} />
+              <OptimizationPanel junctionId={selectedId} />
+            </div>
+          </section>
         )
       )}
     </div>
