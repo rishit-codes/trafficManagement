@@ -1,0 +1,294 @@
+/* GreenCorridorPanel.css */
+/* ... (Existing styles maintained implicitly if appending, but I'll write full file content due to overwrite habit) */
+
+.green-corridor-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.panel-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0;
+}
+
+.panel-subtitle {
+    font-size: 12px;
+    color: #6B7280;
+    margin: -8px 0 0 0;
+}
+
+/* List Items */
+.corridor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.corridor-item {
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 12px;
+    background: #F9FAFB;
+    transition: all 0.2s;
+}
+
+.corridor-item:hover {
+    border-color: #D1D5DB;
+    background: #FFFFFF;
+}
+
+.corridor-item.disabled {
+    opacity: 0.6;
+    background: #F3F4F6;
+    pointer-events: none;
+}
+
+.corridor-info {
+    margin-bottom: 12px;
+}
+
+.corridor-desc {
+    display: block;
+    font-size: 11px;
+    color: #6B7280;
+    margin-top: 4px;
+}
+
+.corridor-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #4B5563;
+    text-transform: uppercase;
+}
+
+.btn-activate {
+    width: 100%;
+    padding: 8px;
+    background: #059669;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-activate:hover {
+    background: #047857;
+}
+
+/* Active Mode Styles */
+.green-corridor-panel.active-mode {
+    border: 2px solid #10B981;
+    background: #ECFDF5;
+}
+
+.panel-header-active {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #A7F3D0;
+    padding-bottom: 12px;
+}
+
+.panel-title-active {
+    font-size: 12px;
+    color: #059669;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin: 0 0 4px 0;
+}
+
+.panel-corridor-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #064E3B;
+}
+
+.btn-terminate {
+    background: #DC2626;
+    color: white;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+.control-status-box {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #D1FAE5;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+}
+
+.status-label {
+    font-size: 10px;
+    color: #6B7280;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.status-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #10B981;
+    font-family: monospace;
+}
+
+.status-helper {
+    font-size: 10px;
+    color: #9CA3AF;
+    margin-top: 4px;
+}
+
+.control-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-control {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #D1D5DB;
+    background: white;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-control:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #F3F4F6;
+}
+
+.btn-control.btn-primary {
+    background: #10B981;
+    color: white;
+    border-color: #059669;
+}
+
+.btn-control.btn-primary:hover:not(:disabled) {
+    background: #059669;
+}
+
+.control-warning {
+    font-size: 10px;
+    color: #78350F; /* Amber 900 */
+    background: #FEF3C7; /* Amber 100 */
+    padding: 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.4;
+}
+
+.warning-icon {
+    font-size: 14px;
+}
+
+/* --- Advisory Impact Panel Styles --- */
+
+.advisory-panel {
+    margin-top: 8px;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.advisory-header {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #4B5563;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.advisory-loading, .advisory-error {
+    font-size: 12px;
+    text-align: center;
+    padding: 12px;
+    color: #6B7280;
+    font-style: italic;
+}
+
+.advisory-error {
+    color: #DC2626;
+}
+
+.advisory-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.advisory-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    background: #F9FAFB;
+    border-radius: 6px;
+}
+
+.advisory-item label {
+    font-size: 9px;
+    color: #6B7280;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.advisory-item span {
+    font-size: 14px;
+    color: #1F2937;
+    font-weight: 700;
+}
+
+.advisory-item.highlight span {
+    color: #2563EB;
+}
+
+.advisory-item.success span {
+    color: #16A34A;
+}
+
+.advisory-alert-box {
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+    font-size: 11px;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.advisory-disclaimer {
+    font-size: 9px;
+    color: #9CA3AF;
+    text-align: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #F3F4F6;
+    font-style: italic;
+}

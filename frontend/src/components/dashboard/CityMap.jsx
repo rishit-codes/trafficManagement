@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Dashboard.css';
+import './CityMap.css';
+import { GREEN_CORRIDORS } from '../../config/greenCorridors';
 
 // Component to handle map animation
 const MapEffect = ({ selectedId, junctions }) => {
@@ -22,29 +24,64 @@ const MapEffect = ({ selectedId, junctions }) => {
   return null;
 };
 
-const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId }) => {
+const CityMap = ({ 
+  junctions = [], 
+  loading = false, 
+  onJunctionSelect, 
+  selectedId,
+  activeGreenCorridorState = { active: false, corridorId: null, currentJunctionIndex: -1 } 
+}) => {
   const position = [22.3072, 73.1812]; // Vadodara Center
 
   if (loading) {
      return <div className="dashboard-card map-card-daylight" style={{display:'flex', alignItems:'center', justifyContent:'center'}}>Loading Map Data...</div>;
   }
 
-  const getColor = (status) => {
+  // --- Green Corridor Logic ---
+  const activeCorridor = activeGreenCorridorState.active 
+    ? GREEN_CORRIDORS.find(c => c.id === activeGreenCorridorState.corridorId) 
+    : null;
+
+  // Extract corridor path coordinates
+  const corridorPath = activeCorridor
+    ? activeCorridor.junctions
+        .map(id => junctions.find(j => j.id === id))
+        .filter(j => j && j.lat && j.lng)
+        .map(j => [j.lat, j.lng])
+    : [];
+
+  const getColor = (status, isCorridorActive, isCurrentPriority) => {
+    if (isCurrentPriority) return '#10B981'; // Bright Green for current target
+    if (isCorridorActive) return '#34D399'; // Lighter Green for corridor path
+    
     switch (status) {
       case 'critical': return '#DC2626'; // Red
       case 'warning': return '#F59E0B'; // Amber
       case 'optimal': return '#16A34A'; // Deep Green
-      default: return '#16A34A'; // Default to Green for pilot if status missing
+      default: return '#16A34A'; // Default to Green
     }
   };
 
   return (
-    <div className="dashboard-card map-card-daylight">
+    <div className="dashboard-card map-card-daylight" style={{ position: 'relative' }}>
       {/* Map Header */}
       <div className="map-card-header">
         <h3 className="map-title-day">Vadodara Pilot Zone Map</h3>
         <p className="map-subtitle-day">Click on a junction to view live camera feed</p>
       </div>
+
+      {/* Corridor Overlay UI */}
+      {activeCorridor && (
+        <div className="green-corridor-overlay">
+          <div className="green-corridor-title">
+            <span className="pulse-dot"></span>
+            GREEN CORRIDOR ACTIVE
+          </div>
+          <div className="green-corridor-subtitle">
+            {activeCorridor.name}
+          </div>
+        </div>
+      )}
 
       <div className="map-wrapper-day">
         <MapContainer 
@@ -61,22 +98,48 @@ const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId
 
           <MapEffect selectedId={selectedId} junctions={junctions} />
           
+          {/* Render Green Corridor Path Polyline */}
+          {activeCorridor && corridorPath.length > 0 && (
+            <Polyline 
+              positions={corridorPath}
+              pathOptions={{ 
+                color: '#10B981', 
+                weight: 6, 
+                opacity: 0.6, 
+                dashArray: '10, 10', 
+                lineCap: 'round' 
+              }}
+            />
+          )}
+
           {junctions && junctions.length > 0 ? (
             junctions
               .filter(j => j.lat != null && j.lng != null && Number.isFinite(j.lat) && Number.isFinite(j.lng))
               .map(j => {
                 const isSelected = selectedId === j.id;
+                
+                // Check Corridor Status
+                const isCorridorJunction = activeCorridor?.junctions.includes(j.id);
+                const isCurrentPriority = activeCorridor && 
+                                          activeCorridor.junctions[activeGreenCorridorState.currentJunctionIndex] === j.id;
+
+                // Determine Styles
+                const markerRadius = isCurrentPriority ? 16 : (isSelected ? 14 : (isCorridorJunction ? 12 : 10));
+                const markerColor = getColor(j.status, isCorridorJunction, isCurrentPriority);
+                const strokeColor = isCurrentPriority ? '#064E3B' : (isSelected ? '#2563EB' : (j.status === 'critical' ? '#DC2626' : '#fff'));
+                const className = isCurrentPriority ? 'corridor-marker-priority' : (isCorridorJunction ? 'corridor-marker-path' : '');
+
                 return (
                   <CircleMarker 
                     key={j.id} 
                     center={[j.lat, j.lng]}
-                    radius={isSelected ? 14 : 10}
+                    radius={markerRadius}
                     pathOptions={{ 
-                      color: isSelected ? '#2563EB' : (j.status === 'critical' ? '#DC2626' : '#fff'), 
-                      fillColor: getColor(j.status), 
-                      fillOpacity: 1, 
-                      weight: isSelected ? 4 : (j.status === 'critical' ? 3 : 2),
-                      className: isSelected ? 'marker-selected' : (j.status === 'critical' ? 'marker-critical' : 'marker-standard') 
+                      color: strokeColor, 
+                      fillColor: markerColor, 
+                      fillOpacity: isCurrentPriority ? 1 : 0.8, 
+                      weight: isCurrentPriority ? 4 : (isSelected ? 4 : 2),
+                      className: className
                     }}
                     eventHandlers={{
                       click: () => onJunctionSelect && onJunctionSelect(j)
@@ -84,6 +147,9 @@ const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId
                   >
                     <Tooltip direction="top" offset={[0, -10]} opacity={1} className="day-map-tooltip">
                       <div className="tooltip-content-day">
+                        {isCurrentPriority && (
+                           <div className="priority-tooltip-header">PRIORITY TARGET</div>
+                        )}
                         <div className="tooltip-header-day">
                           <strong>{j.name}</strong>
                           {isSelected && <span className="selection-badge">VIEWING</span>}
@@ -95,7 +161,7 @@ const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId
                         </div>
                         <div className="tooltip-row-day">
                           <span>Status:</span>
-                          <span style={{ color: getColor(j.status), fontWeight: 600, textTransform: 'uppercase', fontSize: '11px' }}>
+                          <span style={{ color: markerColor, fontWeight: 600, textTransform: 'uppercase', fontSize: '11px' }}>
                               {j.status || 'Active'}
                           </span>
                         </div>
@@ -112,6 +178,11 @@ const CityMap = ({ junctions = [], loading = false, onJunctionSelect, selectedId
             <div className="legend-row-day"><span className="dot dot-green"></span> Operational</div>
             <div className="legend-row-day"><span className="dot dot-amber"></span> Warning</div>
             <div className="legend-row-day"><span className="dot dot-red"></span> Critical</div>
+            {activeCorridor && (
+               <div className="legend-row-day" style={{marginTop: '8px', borderTop: '1px solid #eee', paddingTop: '4px'}}>
+                  <span className="dot" style={{background: '#10B981'}}></span> Green Corridor
+               </div>
+            )}
           </div>
 
         </MapContainer>

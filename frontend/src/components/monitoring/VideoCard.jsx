@@ -19,7 +19,10 @@ const VideoCard = ({ id, name, src }) => {
         <span className="camera-name">{name}</span>
         <div className="live-indicator">
           <span className="live-dot"></span>
-          <span className="live-text">LIVE</span>
+          <span className="live-text">RECORDED DEMO</span>
+        </div>
+        <div className="demo-feed-subtitle" style={{ fontSize: '0.7rem', color: '#888', marginTop: '2px', width: '100%' }}>
+            This is a recorded simulation feed for pilot demonstration.
         </div>
       </div>
 

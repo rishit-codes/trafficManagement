@@ -29,7 +29,10 @@ const LiveCameraPanel = ({ junction }) => {
         <h3 className="camera-title">{junction.name}</h3>
         <div className="live-indicator">
           <span className="live-dot"></span>
-          LIVE
+          RECORDED DEMO
+        </div>
+        <div className="demo-feed-subtitle">
+            This is a recorded simulation feed for pilot demonstration.
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import CityMap from './CityMap';
 import AlertsPanel from './AlertsPanel';
 import TrafficTrend from './TrafficTrend';
 import LiveCameraPanel from './LiveCameraPanel';
+import GreenCorridorPanel from '../control/GreenCorridorPanel';
 import './Dashboard.css';
 
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,15 @@ const Dashboard = () => {
   const [trendData, setTrendData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Pilot State must be lifted here to coordinate Map and Panel
+  const [greenCorridorState, setGreenCorridorState] = useState({
+    active: false,
+    corridorId: null,
+    currentJunctionIndex: -1,
+    startedAt: null,
+    expectedEndAt: null
+  });
   
   // Note: Local selection state removed in favor of URL-driven navigation to /junction/:id
 
@@ -166,11 +176,16 @@ const Dashboard = () => {
              loading={loading} 
              onJunctionSelect={(j) => navigate(`/junction/${j.id}`)}
              selectedId={null} 
+             activeGreenCorridorState={greenCorridorState}
           />
         </div>
         
-        {/* Right Column: Alerts Only */}
+        {/* Right Column: Alerts & Manual Control */}
         <div className="dashboard-column right-column">
+          <GreenCorridorPanel 
+             state={greenCorridorState}
+             onUpdate={setGreenCorridorState}
+          />
           <AlertsPanel 
             alerts={alerts} 
             loading={loading} 
