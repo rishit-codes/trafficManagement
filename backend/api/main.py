@@ -34,7 +34,8 @@ from backend.src.traffic_analytics import analytics
 from backend.src.traffic_forecaster import forecaster
 
 # Import additional routers
-from backend.api.routes import traffic_router, corridor_router, greenwave_router, spillback_router
+from backend.api.routes import traffic_router, corridor_router, spillback_router
+from backend.api import conductor_routes, multimodal_routes, greenwave_routes, emergency_routes
 
 # Global instances (initialized on startup)
 geo_db: GeometricDatabase = None
@@ -42,6 +43,8 @@ optimizer: WebsterOptimizer = None
 spillback: SpillbackDetector = None
 controller: SignalController = None
 
+
+from backend.src.ai_traffic_conductor import conductor # Import global conductor instance
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -57,9 +60,19 @@ async def lifespan(app: FastAPI):
     print("Initializing Traffic Management System...")
     geo_db = GeometricDatabase(junction_config, context_config)
     optimizer = WebsterOptimizer(geo_db)
+    
+    # Inject dependencies
+    conductor.optimizer = optimizer
+    print("AI Conductor initialized with Optimizer")
+    
     spillback = SpillbackDetector(geo_db)
     controller = SignalController(backend="mock")
     controller.connect()
+
+    # Inject controller into engines
+    from backend.src.emergency_engine import emergency_engine
+    emergency_engine.controller = controller
+    print("Emergency Engine initialized with Controller")
     
     # Expose components to app state for routers
     app.state.spillback = spillback
@@ -98,8 +111,13 @@ app.add_middleware(
 # Include additional routers
 app.include_router(traffic_router)
 app.include_router(corridor_router)
-app.include_router(greenwave_router)
+# app.include_router(greenwave_router) # Deprecated
 app.include_router(spillback_router)
+
+app.include_router(greenwave_routes.router, prefix="/api")
+app.include_router(conductor_routes.router, prefix="/api")
+app.include_router(multimodal_routes.router, prefix="/api")
+app.include_router(emergency_routes.router, prefix="/api")
 
 
 # ===== Health & Info Endpoints =====

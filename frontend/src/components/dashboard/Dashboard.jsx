@@ -9,6 +9,8 @@ import AlertsPanel from './AlertsPanel';
 import LiveCameraPanel from './LiveCameraPanel';
 import GreenCorridorPanel from '../control/GreenCorridorPanel';
 import SignalPhaseVisualizer from './SignalPhaseVisualizer';
+import ConductorPanel from './ConductorPanel';
+import MultiModalPanel from './MultiModalPanel';
 import { useTraffic } from '../../context/TrafficContext';
 import './Dashboard.css';
 

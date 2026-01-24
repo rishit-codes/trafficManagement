@@ -37,7 +37,21 @@ const ControlPanel = () => {
         <div className="control-column">
           <section className="control-section">
             <h3 className="section-title critical-text">Emergency Mode</h3>
-            <EmergencyMode />
+            <div className="control-row">
+              <button className="btn-manual override-btn" onClick={() => {
+                fetch('http://localhost:8000/api/emergency/trigger', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    ambulance_id: "AMB-01",
+                    route: ["J001", "J002"]
+                  })
+                });
+              }}>
+                🚑 Trigger Ambulance (J001)
+              </button>
+            </div>
+            {/* <EmergencyMode /> */}
           </section>
         </div>
       </div>
