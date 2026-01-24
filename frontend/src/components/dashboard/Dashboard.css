@@ -51,25 +51,34 @@
 /* Map & Alerts/Camera Layout */
 .map-alerts-row {
   display: flex;
-  gap: 24px;
-  min-height: calc(100vh - 180px);
-  /* Fill remaining screen height */
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 0;
 }
 
 .map-column {
-  flex: 0 0 68%;
-  /* Fixed width */
-  max-width: 68%;
+  flex: 1;
+  width: 100%;
 }
 
 .right-column {
-  flex: 0 0 30%;
-  /* Fixed width to fill gap (2% gap) */
-  max-width: 30%;
+  flex: 1;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.left-panel-group {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
+}
+
+.right-panel-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* Live Camera Panel */
@@ -624,6 +633,16 @@ path.marker-selected {
     width: 100%;
   }
 
+  .right-column {
+    grid-template-columns: 1fr;
+  }
+
+  .left-panel-group,
+  .right-panel-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
   .kpi-grid {
     grid-template-columns: 1fr;
   }

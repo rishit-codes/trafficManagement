@@ -168,15 +168,15 @@
 /* Primary Control Grid: Signal | Video | Metrics */
 .primary-control-grid {
   display: grid;
-  grid-template-columns: auto minmax(280px, 420px) 1fr;
+  grid-template-columns: auto 1fr 280px;
   gap: 24px;
   align-items: start;
 }
 
 /* Compact Video Wrapper */
 .compact-video-wrapper {
-  max-width: 420px;
   width: 100%;
+  min-width: 420px;
 }
 
 /* Constrain video when on detail page */
@@ -187,7 +187,7 @@
 }
 
 .compact-video-wrapper .camera-feed-container {
-  max-height: 240px;
+  max-height: 300px;
 }
 
 .compact-video-wrapper .camera-header {
@@ -208,6 +208,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-width: 280px;
 }
 
 /* Secondary Monitoring Row */

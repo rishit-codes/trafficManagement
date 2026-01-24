@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import VideoGrid from './VideoGrid';
-import VisionStatusCard from './VisionStatusCard';
 import { pilotJunctions } from '../../data/pilotJunctions';
 import './LiveMonitoring.css';
 
@@ -29,9 +28,6 @@ const LiveMonitoring = () => {
 
       {/* 2. Video Wall */}
       <VideoGrid cameras={videoFeeds} />
-
-      {/* 3. Vision System Metrics */}
-      <VisionStatusCard />
     </div>
   );
 };

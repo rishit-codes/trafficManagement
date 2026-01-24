@@ -220,35 +220,39 @@ const Dashboard = () => {
         </div>
 
         <div className="dashboard-column right-column">
-          {/* 1. Camera First */}
-          <LiveCameraPanel
-            junction={selectedJunction}
-            override={activeOverride}
-          />
+          <div className="left-panel-group">
+            {/* 1. Camera */}
+            <LiveCameraPanel
+              junction={selectedJunction}
+              override={activeOverride}
+            />
 
-          {/* 2. Signal Visualizer */}
-          <SignalPhaseVisualizer
-            junctionName={selectedJunction?.name || "Loading..."}
-            active={true}
-            loading={loading}
-            compact={true}
-            override={activeOverride}
-            status={selectedJunction?.status}
-          />
+            {/* 2. Signal Visualizer */}
+            <SignalPhaseVisualizer
+              junctionName={selectedJunction?.name || "Loading..."}
+              active={true}
+              loading={loading}
+              compact={true}
+              override={activeOverride}
+              status={selectedJunction?.status}
+            />
+          </div>
 
-          {/* 3. Green Corridor */}
-          <GreenCorridorPanel
-            state={greenCorridorState}
-            onUpdate={setGreenCorridorState}
-          />
+          <div className="right-panel-group">
+            {/* 3. Green Corridor */}
+            <GreenCorridorPanel
+              state={greenCorridorState}
+              onUpdate={setGreenCorridorState}
+            />
 
-          {/* 4. Alerts */}
-          <AlertsPanel
-            alerts={alerts}
-            loading={loading}
-            error={error}
-            onAlertClick={handleAlertClick}
-          />
+            {/* 4. Alerts */}
+            <AlertsPanel
+              alerts={alerts}
+              loading={loading}
+              error={error}
+              onAlertClick={handleAlertClick}
+            />
+          </div>
         </div>
       </section>
     </div>

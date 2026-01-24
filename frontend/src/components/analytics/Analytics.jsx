@@ -140,7 +140,7 @@ const Analytics = () => {
       <section className="analytics-section">
         <h3 className="section-title">Wait Time Comparison (GeoFlow vs. Fixed Signal)</h3>
         {/* Placeholder for now until chart is dynamic */}
-        {metrics ? <ComparisonCharts data={metrics} /> : <div className="chart-placeholder">Select a junction to view comparison</div>}
+        {metrics ? <ComparisonCharts data={metrics} timeRange={timeRange} /> : <div className="chart-placeholder">Select a junction to view comparison</div>}
       </section>
 
       {/* 4. Secondary Insights Row */}
