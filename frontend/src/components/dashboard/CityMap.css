@@ -1,5 +1,81 @@
 /* CityMap.css */
 
+/* Map Card Container Override */
+.map-card-daylight {
+    display: flex;
+    flex-direction: column;
+    /* Ensure flex parent allows children to grow */
+    height: auto !important; 
+    min-height: 0 !important; /* Remove Dashboard.css lock */
+    background: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Map Overlay Panel (Green Corridor) */
+.map-overlay-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1100; /* Above Leaflet controls */
+    width: 350px;
+    max-width: 90%;
+    max-height: calc(100% - 40px);
+    overflow-y: auto;
+    
+    /* Ensure it doesn't block map interactions outside itself */
+    pointer-events: auto;
+    
+    /* Animation */
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Map Wrapper - Control Height Here */
+.map-wrapper-day {
+    position: relative;
+    width: 100%;
+    /* Fixed Density Height */
+    height: 600px; 
+    
+    background: #E5E7EB;
+    isolation: isolate; 
+    flex: 0 0 auto;
+}
+
+/* Responsive adjustment for mobile */
+@media (max-width: 768px) {
+    .map-wrapper-day {
+        /* Mobile Height - Compact but usable */
+        height: 350px; 
+        min-height: 300px;
+    }
+    
+    .map-card-daylight {
+        margin-bottom: 16px;
+    }
+}
+
+/* Ensure Leaflet container fills wrapper strictly */
+.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1;
+}
+
+/* Fix generic z-index issues */
+.leaflet-pane {
+    z-index: 400; /* Standard Leaflet z-index */
+}
+.leaflet-top, .leaflet-bottom {
+    z-index: 1000;
+}
+
 /* Corridor Marker Styles */
 .corridor-marker-path {
     animation: fadeIn 0.5s ease-in-out;

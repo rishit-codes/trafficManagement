@@ -63,7 +63,7 @@ const LiveCameraPanel = ({ junction, override }) => {
         ) : (
           <div className="video-error-state small">
             <div className="error-icon">☒</div>
-            <p>Live feed unavailable</p>
+            <p>Feed unavailable</p>
           </div>
         )}
       </div>

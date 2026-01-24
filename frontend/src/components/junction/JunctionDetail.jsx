@@ -8,7 +8,7 @@ import TrafficSignal4Way from './TrafficSignal4Way';
 import LiveCameraPanel from '../dashboard/LiveCameraPanel';
 import MultiCameraGrid from './MultiCameraGrid';
 import AnalyticsChart from './AnalyticsChart';
-import { getJunctionById, getJunctionState } from '../../services/api';
+// import { getJunctionById, getJunctionState } from '../../services/api';
 import { pilotJunctions } from '../../data/pilotJunctions';
 import './JunctionDetail.css';
 
@@ -33,51 +33,54 @@ const JunctionDetail = () => {
   // Helper to get static info from pilot file
   const selectedPilotJunction = pilotJunctions.find(j => j.id === selectedId) || pilotJunctions[0];
 
-  // 1. Fetch Junction Details (every 5 seconds)
+  // 1. Simulation Data Integration (No Backend)
   useEffect(() => {
     if (!selectedId) return;
 
-    const fetchDetails = async () => {
-      setLoading(true);
-      try {
-        const details = await getJunctionById(selectedId);
-        setJunctionData(details);
+    // Simulate reliable data connection
+    setLoading(true);
+    setError(null);
+    
+    // In a real app we'd get this from the global context/simulation
+    // For now we mock the successful connection to the simulation bus
+    const timer = setTimeout(() => {
+        setJunctionData({
+            id: selectedId,
+            name: selectedPilotJunction.name,
+            status: 'optimal',
+            ...selectedPilotJunction, // contain lat/lng etc
+        });
         setLastUpdated(new Date());
-        setError(null);
-      } catch (err) {
-        console.error('Junction details error:', err);
-        setJunctionData(null);
-        setError(`Live data unavailable for ${selectedId}`);
-      } finally {
         setLoading(false);
-      }
-    };
+    }, 500);
 
-    fetchDetails();
-    const interval = setInterval(fetchDetails, 5000);
-    return () => clearInterval(interval);
-  }, [selectedId]);
+    return () => clearTimeout(timer);
+  }, [selectedId, selectedPilotJunction]);
 
-  // 2. Fetch Signal State (every 1 second for real-time countdown)
+  // 2. Mock Signal State loop (Deterministic)
   useEffect(() => {
     if (!selectedId) return;
 
-    const fetchSignalState = async () => {
-      try {
-        const state = await getJunctionState(selectedId);
-        setSignalState(state);
-        setSignalError(null);
-        setSignalLoading(false);
-      } catch (err) {
-        console.error('Signal state error:', err);
-        setSignalState(null);
-        setSignalError('Signal data unavailable');
-        setSignalLoading(false);
-      }
-    };
+    const interval = setInterval(() => {
+        const now = Date.now();
+        // Deterministic phase change every 15 seconds based on time
+        const phases = ['N', 'E', 'S', 'W'];
+        const cycleTime = 60000; // 60s cycle
+        const phaseDuration = 15000; // 15s per phase
+        const phaseIdx = Math.floor((now % cycleTime) / phaseDuration);
+        
+        const currentPhase = phases[phaseIdx];
+        const timeRemaining = Math.ceil((phaseDuration - (now % phaseDuration)) / 1000);
 
-    fetchSignalState();
-    const interval = setInterval(fetchSignalState, 1000); // 1-second polling
+        setSignalState({
+            current_phase: currentPhase,
+            active_directions: [currentPhase], // Simplified
+            time_remaining: timeRemaining,
+            display_name: `Phase ${currentPhase} (Green)`,
+        });
+        setSignalLoading(false);
+    }, 1000);
+
     return () => clearInterval(interval);
   }, [selectedId]);
 
@@ -119,7 +122,7 @@ const JunctionDetail = () => {
 
       {/* Primary Row: Always Visible (Video works independently of backend data) */}
       <section className="detail-section">
-        <h3 className="section-title">Live Signal Status</h3>
+        <h3 className="section-title">Signal Status</h3>
         <div className="primary-control-grid">
           {/* LEFT: 4-Way Traffic Signal (Handles its own error state) */}
           <TrafficSignal4Way

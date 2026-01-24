@@ -27,4 +27,22 @@
   <node id="ext_J003_east_out" x="1507.92" y="1458.29" type="priority"/>
   <node id="ext_J003_west" x="1107.92" y="1458.29" type="priority"/>
   <node id="ext_J003_west_out" x="1107.92" y="1458.29" type="priority"/>
+  <node id="J004" x="1761.05" y="-4386.01" type="traffic_light"/>
+  <node id="ext_J004_north" x="1761.05" y="-4186.01" type="priority"/>
+  <node id="ext_J004_north_out" x="1761.05" y="-4186.01" type="priority"/>
+  <node id="ext_J004_south" x="1761.05" y="-4586.01" type="priority"/>
+  <node id="ext_J004_south_out" x="1761.05" y="-4586.01" type="priority"/>
+  <node id="ext_J004_east" x="1961.05" y="-4386.01" type="priority"/>
+  <node id="ext_J004_east_out" x="1961.05" y="-4386.01" type="priority"/>
+  <node id="ext_J004_west" x="1561.05" y="-4386.01" type="priority"/>
+  <node id="ext_J004_west_out" x="1561.05" y="-4386.01" type="priority"/>
+  <node id="J005" x="-2451.06" y="567.73" type="traffic_light"/>
+  <node id="ext_J005_north" x="-2451.06" y="767.73" type="priority"/>
+  <node id="ext_J005_north_out" x="-2451.06" y="767.73" type="priority"/>
+  <node id="ext_J005_south" x="-2451.06" y="367.73" type="priority"/>
+  <node id="ext_J005_south_out" x="-2451.06" y="367.73" type="priority"/>
+  <node id="ext_J005_east" x="-2251.06" y="567.73" type="priority"/>
+  <node id="ext_J005_east_out" x="-2251.06" y="567.73" type="priority"/>
+  <node id="ext_J005_west" x="-2651.06" y="567.73" type="priority"/>
+  <node id="ext_J005_west_out" x="-2651.06" y="567.73" type="priority"/>
 </nodes>

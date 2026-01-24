@@ -55,12 +55,7 @@ const ApproachCard = ({ direction, data }) => {
 
 const GeometryPanel = ({ data }) => {
   if (!data || !data.approaches) {
-    return (
-      <div className="detail-panel empty-geometry">
-        <h4 className="panel-title">Junction Geometry</h4>
-        <p className="text-muted">No geometric configurations found.</p>
-      </div>
-    );
+    return null;
   }
 
   return (

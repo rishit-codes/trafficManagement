@@ -24,7 +24,7 @@ const AlertsPanel = ({ alerts = [], loading = false, error = null, onAlertClick 
   return (
     <div className="dashboard-card alerts-panel">
       <div className="alerts-header">
-        <h3 className="panel-title">Live Alerts</h3>
+        <h3 className="panel-title">Traffic Alerts</h3>
         <span className="alerts-count">{displayAlerts.length} Active</span>
       </div>
 
@@ -60,7 +60,7 @@ const AlertsPanel = ({ alerts = [], loading = false, error = null, onAlertClick 
                 </div>
 
                 <div className="alert-footer">
-                  <span className="alert-link">View detailsbox →</span>
+                  <span className="alert-link">View Details →</span>
                 </div>
               </div>
             );

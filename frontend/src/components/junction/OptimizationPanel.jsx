@@ -17,7 +17,7 @@ const OptimizationPanel = ({ state }) => {
         </div>
 
         <div style={{ background: '#F0F9FF', padding: '10px', borderRadius: '6px', marginTop: '8px' }}>
-          <p style={{ fontSize: '11px', color: '#0369A1', marginBottom: '4px' }}><strong>AI Controller Status</strong></p>
+          <p style={{ fontSize: '11px', color: '#0369A1', marginBottom: '4px' }}><strong>Controller Logic Status</strong></p>
           {state.display_name.includes('Green') ? (
             <p style={{ fontSize: '12px', color: '#0C4A6E' }}>
               Holding Green for <strong>{state.active_directions.join('+')}</strong> to clear platoon.

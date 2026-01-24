@@ -56,9 +56,9 @@ const SignalPhaseVisualizer = ({ junctionName, active, loading, compact = false,
     return (
         <div className="dashboard-card signal-card">
             <div className="signal-header">
-                <h3 className="panel-title">AI Signal Control</h3>
+                <h3 className="panel-title">Signal Control Logic</h3>
                 <span className="live-tag">
-                    <span className="pulse-dot-small"></span> LIVE
+                    <span className="pulse-dot-small"></span> SIMULATION
                 </span>
             </div>
 
@@ -67,7 +67,7 @@ const SignalPhaseVisualizer = ({ junctionName, active, loading, compact = false,
                     <div className="info-label">Current Junction</div>
                     <div className="info-value">{junctionName || 'Select a Junction'}</div>
 
-                    <div className="info-label mt-2">Optimization Confidence</div>
+                    <div className="info-label mt-2">Logic Confidence</div>
                     <div className="confidence-meter">
                         <div className="confidence-bar" style={{ width: `${aiConfidence}%` }}></div>
                     </div>
@@ -91,11 +91,11 @@ const SignalPhaseVisualizer = ({ junctionName, active, loading, compact = false,
             <div className="signal-footer">
                 <div className="metric-pill">
                     <span className="icon">⚡</span>
-                    <span>Latency: 42ms</span>
+                    <span>Latency: 0ms</span>
                 </div>
                 <div className="metric-pill">
-                    <span className="icon">🤖</span>
-                    <span>AI Mode: Active</span>
+                    <span className="icon">⚙️</span>
+                    <span>Mode: Simulation</span>
                 </div>
             </div>
         </div>

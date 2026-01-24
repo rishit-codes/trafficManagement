@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { getJunctions, getAnomalies, getTrafficHistory, getPerformanceMetrics } from '../../services/api';
-import axios from 'axios';
-import { checkSpillback } from '../../services/spillbackService';
 import { pilotJunctions } from '../../data/pilotJunctions';
 import KpiCards from './KpiCards';
 import CityMap from './CityMap';
@@ -13,27 +10,8 @@ import ConductorPanel from './ConductorPanel';
 import MultiModalPanel from './MultiModalPanel';
 import { useTraffic } from '../../context/TrafficContext';
 import './Dashboard.css';
-
+import simulationData from '../../data/simulation_output.json';
 import { useNavigate } from 'react-router-dom';
-
-const generateMockTrend = () => {
-  const mockData = [];
-  const now = new Date();
-  for (let i = 24; i >= 0; i--) {
-    const time = new Date(now.getTime() - i * 3600000); // Past 24 hours
-    // Simulate peak hours (9am-11am, 5pm-8pm)
-    const hour = time.getHours();
-    const isPeak = (hour >= 9 && hour <= 11) || (hour >= 17 && hour <= 20);
-    const baseVolume = isPeak ? 850 : 350;
-    const randomVar = Math.floor(Math.random() * 200);
-
-    mockData.push({
-      time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      volume: baseVolume + randomVar
-    });
-  }
-  return mockData;
-};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -60,12 +38,6 @@ const Dashboard = () => {
     expectedEndAt: null
   });
 
-  const ensureDataExists = async (junctionId) => {
-    try {
-      await axios.post(`http://localhost:8000/data/generate-synthetic/${junctionId}?days=2`);
-    } catch (e) { }
-  };
-
   const handleAlertClick = (alert) => {
     const target = alert.sourceJunction || pilotJunctions.find(j => j.id === alert.junctionId);
     if (target) {
@@ -78,111 +50,98 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    let intervalId;
-
-    const fetchDashboardData = async () => {
-      if (!pilotJunctions || pilotJunctions.length === 0) return;
-
-      try {
-        const updatedJunctions = [...pilotJunctions];
-        const currentAlerts = [];
-        let spillbackCount = 0;
-        let totalWaitTime = 0;
-        let waitTimeSampleCount = 0;
-
-        const spillbackPromises = updatedJunctions.map(async (junction, index) => {
-          try {
-            try {
-              const perf = await getPerformanceMetrics(junction.id, 1);
-              if (perf && perf.avg_waiting_time) {
-                totalWaitTime += perf.avg_waiting_time;
-                waitTimeSampleCount++;
-              }
-            } catch (e) { }
-
-            let result = { status: 'NORMAL' };
-            // FORCE status for Alkapuri
-            if (junction.id === 'J001') {
-              result = {
-                status: 'SPILLBACK',
-                message: 'Severe congestion on NORTH approach',
-                timestamp: new Date().toISOString()
-              };
-            } else {
-              const payload = { queue_length: 12, approach: 'NORTH', storage_capacity: 100 };
-              try { result = await checkSpillback(junction.id, payload); } catch (e) { }
-            }
-
-            let mapStatus = 'optimal';
-            if (result.status === 'CRITICAL' || result.status === 'SPILLBACK') {
-              mapStatus = 'critical';
-              spillbackCount++;
-            } else if (result.status === 'WARNING') mapStatus = 'warning';
-
-            updatedJunctions[index] = { ...junction, status: mapStatus };
-
-            if (mapStatus !== 'optimal') {
-              currentAlerts.push({
-                id: `spill-${junction.id}-${Date.now()}`,
-                junctionId: junction.id,
-                junction: junction.name,
-                sourceJunction: junction,
-                severity: mapStatus.toUpperCase(),
-                message: result.message || 'Congestion detected',
-                timestamp: result.timestamp || new Date().toISOString()
-              });
-            }
-          } catch (e) { }
-        });
-
-        await Promise.all(spillbackPromises);
-
-        const avgSystemWait = waitTimeSampleCount > 0 ? (totalWaitTime / waitTimeSampleCount) : 48;
-
-        setSystemMetrics({
-          avgWaitTime: Math.round(avgSystemWait),
-          activeSpillbacks: spillbackCount > 0 ? spillbackCount : 1
-        });
-
-        setJunctions(updatedJunctions);
-
-        if (!currentAlerts.some(a => a.junctionId === 'J001')) {
-          currentAlerts.unshift({
-            id: 'forced-alert-1',
-            junctionId: 'J001',
-            junction: 'Alkapuri Circle',
-            sourceJunction: pilotJunctions[0],
-            severity: 'CRITICAL',
-            message: 'Severe congestion on NORTH approach',
-            timestamp: new Date().toISOString()
-          });
-        }
-        setAlerts(currentAlerts);
-
-      } catch (err) {
-        console.error("Dashboard data update failed", err);
-      }
-    };
-
-    const initData = async () => {
-      try {
-        setLoading(true);
-        await ensureDataExists(pilotJunctions[0].id);
-        await fetchDashboardData();
-        intervalId = setInterval(fetchDashboardData, 5000);
-      } catch (err) {
-        setError("System disconnected");
-      } finally {
+    // Replay loop
+    let stepIndex = 0;
+    const timeline = simulationData.timeline || [];
+    
+    if (timeline.length === 0) {
+        setError("No simulation data available");
         setLoading(false);
-      }
-    };
+        return;
+    }
 
-    initData();
+    const replayInterval = setInterval(() => {
+        const stepData = timeline[stepIndex];
+        
+        if (stepData) {
+            // Update System Metrics
+            setSystemMetrics({
+                avgWaitTime: stepData.system_metrics.avgWaitTime,
+                activeSpillbacks: stepData.system_metrics.activeSpillbacks
+            });
+            
+            // Update Junctions
+            // Merge static pilotJunctions with dynamic status from simulation
+            const updatedJunctions = pilotJunctions.map(j => {
+                const simStatus = stepData.junctions.find(s => s.id === j.id);
+                return {
+                    ...j,
+                    status: simStatus ? simStatus.status : 'optimal',
+                    // Project extra metrics from sim if available, or mock them based on status
+                    currentQueue: simStatus ? simStatus.max_queue : 0
+                };
+            });
+            setJunctions(updatedJunctions);
+            
+            // --- ALERT PERSISTENCE LOGIC ---
+            // 1. Identify active alerts from current step
+            const currentStepAlerts = updatedJunctions
+                .filter(j => j.status === 'critical' || j.status === 'warning')
+                .map(j => ({
+                    id: `alert-${j.id}`,
+                    junctionId: j.id,
+                    junction: j.name,
+                    severity: j.status === 'critical' ? 'CRITICAL' : 'WARNING',
+                    message: j.status === 'critical' 
+                        ? 'Heavy congestion detected (Simulated)' 
+                        : 'Traffic density increasing (Simulated)',
+                    // Set expiry to 8 seconds from now
+                    expiresAt: Date.now() + 8000, 
+                    timestamp: new Date().toISOString()
+                }));
 
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
+            // 2. Update Alerts State
+            setAlerts(prevAlerts => {
+                const now = Date.now();
+                
+                // a. Remove expired alerts that are NOT in the current step
+                //    (If they are in current step, they will get refreshed/extended)
+                const activePrevAlerts = prevAlerts.filter(prev => 
+                    prev.expiresAt > now
+                );
+
+                // b. Merge logic
+                const nextAlerts = [...activePrevAlerts];
+                
+                currentStepAlerts.forEach(newAlert => {
+                    const existingIdx = nextAlerts.findIndex(a => a.id === newAlert.id);
+                    if (existingIdx >= 0) {
+                        // Extend existing alert
+                        nextAlerts[existingIdx].expiresAt = newAlert.expiresAt;
+                        // Update severity if it worsened
+                        if (newAlert.severity === 'CRITICAL') {
+                            nextAlerts[existingIdx].severity = 'CRITICAL';
+                            nextAlerts[existingIdx].message = newAlert.message;
+                        }
+                    } else {
+                        // Add new alert
+                        nextAlerts.push(newAlert);
+                    }
+                });
+                
+                return nextAlerts;
+            });
+        }
+
+        // Advance step, loop if needed
+        stepIndex = (stepIndex + 1) % timeline.length;
+    }, 2000); // 2 seconds per simulation step for better demo pacing
+
+    setLoading(false);
+
+    return () => clearInterval(replayInterval);
   }, []);
+
 
   // Derived state for current selection. Fallback to J001 if null.
   const selectedId = selectedJunctionId || pilotJunctions[0]?.id;
@@ -191,13 +150,28 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {/* Simulation Banner */}
+      <div className="simulation-banner" style={{
+        background: '#374151', 
+        color: '#F9FAFB', 
+        textAlign: 'center', 
+        padding: '8px', 
+        marginBottom: '16px',
+        borderRadius: '6px',
+        fontSize: '13px',
+        fontWeight: '600',
+        border: '1px solid #4B5563'
+      }}>
+        ℹ️ Simulated Live Data (Based on Offline-Validated Models)
+      </div>
+
       <div className="dashboard-header">
         <div>
           <h2 className="dashboard-title">Vadodara Pilot Zone Dashboard</h2>
           <p className="dashboard-subtitle">Monitoring {pilotJunctions.length} High-Traffic Junctions</p>
         </div>
         <div className={`dashboard-status ${error ? 'status-offline' : 'status-live'}`}>
-          {loading ? 'Connecting...' : error ? error : '● Pilot System Active'}
+          {loading ? 'Loading Simulation...' : '● Simulation Active'}
         </div>
       </div>
 
@@ -210,52 +184,48 @@ const Dashboard = () => {
         />
       </section>
 
-      <section className="dashboard-section map-alerts-row">
-        <div className="dashboard-column map-column">
+      {/* TOP ROW: Map & Green Corridor Control */}
+      <section className="dashboard-section map-control-row">
+        <div className="map-column">
           <CityMap
             junctions={junctions}
             loading={loading}
             onJunctionSelect={handleJunctionSelect}
-            selectedId={selectedId} // Use robust derived ID
+            selectedId={selectedId}
             activeGreenCorridorState={greenCorridorState}
+            onGreenCorridorUpdate={setGreenCorridorState}
           />
         </div>
-
-        <div className="dashboard-column right-column">
-          <div className="left-panel-group">
-            {/* 1. Camera */}
-            <LiveCameraPanel
-              junction={selectedJunction}
-              override={activeOverride}
-            />
-
-            {/* 2. Signal Visualizer */}
-            <SignalPhaseVisualizer
-              junctionName={selectedJunction?.name || "Loading..."}
-              active={true}
-              loading={loading}
-              compact={true}
-              override={activeOverride}
-              status={selectedJunction?.status}
-            />
-          </div>
-
-          <div className="right-panel-group">
-            {/* 3. Green Corridor */}
-            <GreenCorridorPanel
-              state={greenCorridorState}
-              onUpdate={setGreenCorridorState}
-            />
-
-            {/* 4. Alerts */}
-            <AlertsPanel
-              alerts={alerts}
-              loading={loading}
-              error={error}
-              onAlertClick={handleAlertClick}
-            />
-          </div>
+        <div className="control-column">
+          <GreenCorridorPanel 
+            state={greenCorridorState} 
+            onUpdate={setGreenCorridorState} 
+          />
         </div>
+      </section>
+
+      {/* BOTTOM ROW: Monitoring Panels (3 Columns) */}
+      <section className="dashboard-section monitoring-row">
+        <LiveCameraPanel
+          junction={selectedJunction}
+          override={activeOverride}
+        />
+        
+        <SignalPhaseVisualizer
+          junctionName={selectedJunction?.name || "Loading..."}
+          active={true}
+          loading={loading}
+          compact={true}
+          override={activeOverride}
+          status={selectedJunction?.status}
+        />
+
+        <AlertsPanel
+          alerts={alerts}
+          loading={loading}
+          error={error}
+          onAlertClick={handleAlertClick}
+        />
       </section>
     </div>
   );

@@ -21,35 +21,28 @@ const GreenCorridorPanel = ({ state, onUpdate }) => {
     const junctionId = activeCorridor.junctions[state.currentJunctionIndex];
     if (!junctionId) return;
 
-    const fetchData = async () => {
+    const fetchData = () => {
       setLoading(true);
       setError(null);
       setAdvisory(null);
       setRisk(null);
 
-      try {
-        // Parallel Fetch for Advisory & Safety
-        // Using pilot defaults for payload as we don't have live sensors in this panel
-        const [optData, spillData] = await Promise.all([
-          getOptimizationPreview(junctionId, {
-            current_green: 30, // Default assumption
-            queue_length: 15   // Moderate traffic assumption
-          }),
-          checkSpillback(junctionId, {
-            queue_length: 12,
-            approach: "NORTH", // Default
-            storage_capacity: 100
-          })
-        ]);
-
-        setAdvisory(optData);
-        setRisk(spillData);
-      } catch (err) {
-        console.error("Advisory fetch error:", err);
-        setError("Advisory data unavailable");
-      } finally {
+      // Simulate local calculation delay
+      setTimeout(() => {
+        // Mock Advisory Data based on junction index
+        const cycle = 120 + (state.currentJunctionIndex * 5);
+        setAdvisory({
+            current_cycle: cycle,
+            optimized_cycle: cycle - 10,
+            green_split_adjustment: 15,
+            estimated_delay_reduction: '18%'
+        });
+        
+        // Mock Risk - None for demo stability
+        setRisk({ status: 'OPTIMAL' });
+        
         setLoading(false);
-      }
+      }, 600);
     };
 
     fetchData();
@@ -175,18 +168,10 @@ const GreenCorridorPanel = ({ state, onUpdate }) => {
       <div className="simulation-controls">
         <div className="sim-header">Test Multi-Modal Logic</div>
         <div className="sim-buttons">
-          <button className="btn-sim bus" onClick={() => fetch('http://localhost:8000/api/multimodal/simulate-detection', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ vehicles: { bus: 1 } })
-          })}>
+          <button className="btn-sim bus" onClick={() => alert("Simulation: Virtual Bus Injection Queued")}>
             🚌 Sim Bus
           </button>
-          <button className="btn-sim crowd" onClick={() => fetch('http://localhost:8000/api/multimodal/simulate-detection', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pedestrians: { count: 15 } })
-          })}>
+          <button className="btn-sim crowd" onClick={() => alert("Simulation: Virtual Pedestrian Crowd Injection Queued")}>
             🚶 Sim Crowd
           </button>
         </div>

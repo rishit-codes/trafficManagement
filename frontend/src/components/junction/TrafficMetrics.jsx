@@ -18,7 +18,7 @@ const TrafficMetrics = ({ state }) => {
 
   return (
     <div className="detail-panel">
-      <h4 className="panel-title">Flow Capacity (Live)</h4>
+      <h4 className="panel-title">Flow Capacity (Simulated)</h4>
       <div className="metrics-grid-inner">
         <div className="metric-gauge-card">
           <div className="direction-label">NORTH–SOUTH</div>
