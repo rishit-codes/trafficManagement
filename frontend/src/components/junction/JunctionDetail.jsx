@@ -83,8 +83,9 @@ const JunctionDetail = () => {
             if (currentPhase) {
                 const activeDir = dirMap[currentPhase];
                 const activeData = prev[activeDir];
-                // Simulate fast outflow to clear the previous winner
-                const newCars = Math.max(0, activeData.cars - 8); 
+                // Simulate Outflow: Clear 12-15 cars per 5s (Saturation Flow ~2.5-3 v/s)
+                const outflow = Math.floor(Math.random() * 4) + 12; 
+                const newCars = Math.max(0, activeData.cars - outflow);
                 const newPCU = (newCars * 1.0) + (activeData.buses * 3.0) + (activeData.trucks * 3.0);
                 
                 nextState[activeDir] = {
@@ -92,33 +93,48 @@ const JunctionDetail = () => {
                     cars: newCars,
                     pcu: newPCU,
                     queue: Math.floor(newPCU * 0.4),
-                    speed: Math.min(60, activeData.speed + 8) 
+                    speed: Math.min(60, activeData.speed + 12) 
                 };
             }
 
-            // 2. Inflow: Chaos Mode - Pick ONE "Unlucky" lane to spike
-            // This forces a clear "winner" for the priority algorithm
-            const availableLanes = dirs.filter(d => d !== currentPhase);
-            const unluckyLane = availableLanes[Math.floor(Math.random() * availableLanes.length)];
-            const targetDir = dirMap[unluckyLane];
-            const oldData = prev[targetDir];
+            // 2. Inflow: Realistic Arrival Pattern
+            // Previous logic was 20-40 cars EVERY 5s -> Infinite accumulation.
+            // New Logic: 70% chance of trickle (1-3 cars), 30% chance of platoon (8-15 cars).
+            
+            dirs.forEach(lane => {
+                if (lane === currentPhase) return; // Don't add to clearing lane roughly
+                
+                const targetDir = dirMap[lane];
+                const oldData = nextState[targetDir] || prev[targetDir]; // Use updated state if touched
+                
+                // Decay (Leakage/Turning on Red) - prevents infinite stuck queues
+                let cars = Math.max(0, oldData.cars - (Math.random() > 0.8 ? 1 : 0)); 
 
-            // Massive Spike: 20-40 Vehicles at once (Simulating a platoon arrival)
-            const spike = Math.floor(Math.random() * 20) + 20; 
-            const cars = oldData.cars + spike;
-            const pcu = (cars * 1.0) + (oldData.buses * 3.0) + (oldData.trucks * 3.0) + (oldData.bikes * 0.5);
+                // Inflow
+                if (Math.random() > 0.7) {
+                    // Platoon Arrival
+                    const spike = Math.floor(Math.random() * 8) + 8; // 8-15 cars
+                    cars += spike;
+                    // Log only significant spikes to avoid spam
+                    if (spike > 12) {
+                         const vidId = Math.floor(Math.random() * 4) + 1;
+                         setAiLog(`> Executing: python backend/test_accuracy.py --video samples/trafficdemo${vidId}.mp4\n> [PLATOON DETECTED] +${spike} Vehicles in ${lane}`);
+                    }
+                } else {
+                    // Trickle Arrival
+                    cars += Math.floor(Math.random() * 3); // 0-2 cars
+                }
 
-            nextState[targetDir] = {
-                ...oldData,
-                cars: cars,
-                pcu: pcu,
-                queue: Math.floor(pcu * 0.4),
-                speed: Math.max(5, 50 - (pcu*0.6)) // Speed crashes
-            };
-
-            // Log the Critical Event
-            const vidId = Math.floor(Math.random() * 4) + 1;
-            setAiLog(`> Executing: python backend/test_accuracy.py --video samples/trafficdemo${vidId}.mp4\n> [CRITICAL DETECTION] +${spike} Vehicles in ${unluckyLane} (Total PCU: ${pcu.toFixed(0)})`);
+                const pcu = (cars * 1.0) + (oldData.buses * 3.0) + (oldData.trucks * 3.0) + (oldData.bikes * 0.5);
+                
+                nextState[targetDir] = {
+                    ...oldData,
+                    cars: cars,
+                    pcu: pcu,
+                    queue: Math.floor(pcu * 0.4),
+                    speed: Math.max(10, 50 - (pcu * 0.8))
+                };
+            });
 
             return nextState;
         });
