@@ -6,10 +6,33 @@ const SystemActions = () => {
 
   const handleGlobalOptimize = () => {
     setLoading(true);
+    
+    // Dispatch Optimize Command
+    const payload = { 
+        junctionId: 'all',
+        type: 'optimize', 
+        timestamp: Date.now()
+    };
+    
+    // 1. Live Event
+    window.dispatchEvent(new CustomEvent('signal-override', { detail: payload }));
+    // 2. Persist
+    localStorage.setItem('traffic_override_cmd', JSON.stringify(payload));
+
     setTimeout(() => {
       setLoading(false);
-      console.log('Global optimization applied');
-    }, 1500);
+      console.log('Global optimization signal sent');
+    }, 1000);
+  };
+
+  const handleSystemReset = () => {
+      const payload = { 
+          junctionId: 'all',
+          type: 'reset', 
+          timestamp: Date.now()
+      };
+      window.dispatchEvent(new CustomEvent('signal-override', { detail: payload }));
+      localStorage.setItem('traffic_override_cmd', JSON.stringify(payload));
   };
 
   return (
@@ -28,7 +51,7 @@ const SystemActions = () => {
           <div style={{ fontSize: '14px', fontWeight: '500', color: '#111827' }}>System Reset</div>
           <div style={{ fontSize: '12px', color: '#6B7280' }}>Revert to fixed-time backup schedule</div>
         </div>
-        <button className="btn btn-neutral" style={{ fontSize: '12px' }}>
+        <button className="btn btn-neutral" style={{ fontSize: '12px' }} onClick={handleSystemReset}>
           Restore Defaults
         </button>
       </div>

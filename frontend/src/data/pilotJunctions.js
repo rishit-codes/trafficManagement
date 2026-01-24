@@ -4,7 +4,14 @@ export const pilotJunctions = [
     name: "Alkapuri Circle",
     lat: 22.3072,
     lng: 73.1812,
-    video: "/videos/trafficdemo1.mp4"
+    video: "/videos/trafficdemo1.mp4",
+    // 4-Way Video Feeds for Real-Time Demo
+    feeds: {
+        north: "/videos/trafficdemo1.mp4",
+        south: "/videos/trafficdemo2.mp4",
+        east: "/videos/trafficdemo3.mp4",
+        west: "/videos/trafficdemo4.mp4"
+    }
   },
   {
     id: "J002",

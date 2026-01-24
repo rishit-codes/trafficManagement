@@ -1,11 +1,38 @@
 import React from 'react';
 
 const OptimizationPanel = ({ state }) => {
+  const [optimizationStatus, setOptimizationStatus] = React.useState('idle'); // idle, optimizing, done
+
+  // Listen for optimization commands to trigger visual feedback
+  React.useEffect(() => {
+      const handleEvent = (e) => {
+          if (e.detail?.type === 'optimize') {
+              setOptimizationStatus('optimizing');
+              setTimeout(() => setOptimizationStatus('done'), 2000);
+              setTimeout(() => setOptimizationStatus('idle'), 5000);
+          }
+      };
+      window.addEventListener('signal-override', handleEvent);
+      return () => window.removeEventListener('signal-override', handleEvent);
+  }, []);
+
   if (!state) return null;
 
   return (
     <div className="detail-panel">
-      <h4 className="panel-title">Signal Optimization</h4>
+      <h4 className="panel-title" style={{ display: 'flex', justifyContent: 'space-between' }}>
+          Signal Optimization
+          {optimizationStatus === 'optimizing' && <span className="status-badge status-warning">Running...</span>}
+          {optimizationStatus === 'done' && <span className="status-badge status-active">✅ Updated</span>}
+      </h4>
+      
+      {optimizationStatus === 'optimizing' ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#0369A1' }}>
+              <div className="loading-spinner" style={{ margin: '0 auto 12px' }} />
+              <p style={{ fontSize: '12px' }}>Recalculating Cycle Weights...</p>
+              <p style={{ fontSize: '10px', color: '#64748B' }}>Analyzing 4-way demand history</p>
+          </div>
+      ) : (
       <div className="optimization-grid" style={{ gridTemplateColumns: '1fr' }}>
         <div className="metric-row">
           <span className="metric-label">Current Phase</span>
@@ -13,7 +40,7 @@ const OptimizationPanel = ({ state }) => {
         </div>
         <div className="metric-row">
           <span className="metric-label">Cycle Time</span>
-          <span className="metric-value">{state.cycle_length}s</span>
+          <span className="metric-value">{state.cycle_length || 120}s</span>
         </div>
 
         <div style={{ background: '#F0F9FF', padding: '10px', borderRadius: '6px', marginTop: '8px' }}>
@@ -53,6 +80,7 @@ const OptimizationPanel = ({ state }) => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

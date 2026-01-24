@@ -102,19 +102,34 @@ class YOLOAccuracyTester:
         print("TRAFFIC MANAGEMENT MODEL - DETECTION RESULTS")
         print("="*60)
         print(f"Frames processed: {len(results)}")
-        print(f"Total detections: {total_detections}")
-        print(f"Avg detections per frame: {avg_detections_per_frame:.1f}")
-        print(f"Frames with detections: {frames_with_detections}/{len(results)} ({detection_rate:.1f}%)")
+        
+        # Find the frame with the max vehicles to show its specific breakdown
+        max_vehicles = max([sum(r.vehicle_counts.values()) for r in results]) if results else 0
+        peak_frame = max(results, key=lambda r: sum(r.vehicle_counts.values())) if results else None
+        
+        print(f"\n🚙 VEHICLE COUNT METRICS:")
+        print(f"   Max Simultaneous Vehicles: {max_vehicles} (Peak Traffic)")
+        print(f"   Avg Simultaneous Vehicles: {avg_detections_per_frame:.1f} (Average Flow)")
+        print(f"   Total Bounding Boxes:      {total_detections} (Sum across {len(results)} frames)")
+        
+        print(f"\n   Frames with detections: {frames_with_detections}/{len(results)} ({detection_rate:.1f}%)")
         print(f"\n🎯 ESTIMATED ACCURACY: {estimated_accuracy:.1f}%")
         print(f"   (Based on ML model performance on traffic scenarios)")
-        print(f"\nVehicle breakdown:")
-        for vtype, count in sorted(vehicle_type_counts.items()):
-            percentage = (count / total_detections * 100) if total_detections > 0 else 0
-            print(f"  {vtype:12s}: {count:4d} ({percentage:5.1f}%)")
+        
+        print(f"\nVehicle breakdown (At Peak Traffic):")
+        # Use the specific counts from the peak frame to ensure integers
+        if peak_frame:
+            peak_total = sum(peak_frame.vehicle_counts.values())
+            for vtype, count in sorted(peak_frame.vehicle_counts.items()):
+                percentage = (count / peak_total * 100) if peak_total > 0 else 0
+                print(f"  {vtype:12s}: {count:4d} ({percentage:5.1f}%)")
+            
         print(f"\nAverage PCU per frame: {avg_pcu:.2f}")
         print(f"Average inference time: {avg_inference:.1f}ms")
         print(f"Max inference time: {max(inference_times):.1f}ms")
         print(f"Min inference time: {min(inference_times):.1f}ms")
+        print("="*60)
+        print(f"✅ FINAL DETECTED COUNT: {max_vehicles} Vehicles")
         print("="*60 + "\n")
         
         return {

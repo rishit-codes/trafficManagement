@@ -14,7 +14,21 @@ const ManualOverride = () => {
 
   const confirmAction = () => {
     console.log(`Applying ${action} to ${selectedJunction}`);
-    // Simulate API call
+    
+    // 1. Dispatch event for immediate reaction (if in split view)
+    const payload = { 
+        junctionId: selectedJunction,
+        type: action, // 'extend_green', 'force_red', 'flash_yellow'
+        timestamp: Date.now()
+    };
+    
+    const event = new CustomEvent('signal-override', { detail: payload });
+    window.dispatchEvent(event);
+
+    // 2. Persist to LocalStorage (So it works across navigation/tabs)
+    localStorage.setItem('traffic_override_cmd', JSON.stringify(payload));
+
+    // Simulate API call delay for UI feedback
     setTimeout(() => {
       setSuccessMsg(`Command Sent: ${action.replace('_', ' ').toUpperCase()}`);
       setShowModal(false);

@@ -148,6 +148,27 @@ const Dashboard = () => {
   const selectedJunction = junctions.find(j => j.id === selectedId) || pilotJunctions[0];
   const activeOverride = overrides ? overrides[selectedId] : null;
 
+  // Sync Visualizer with Dashboard Status
+  // If junction is Critical -> High Counts; Optimal -> Low Counts
+  const [derivedCounts, setDerivedCounts] = useState(null);
+  
+  useEffect(() => {
+      if (!selectedJunction) return;
+      
+      const isCritical = selectedJunction.status === 'critical';
+      const isWarning = selectedJunction.status === 'warning';
+      
+      // Base numbers on status to ensure consistency
+      const baseCars = isCritical ? 45 : (isWarning ? 25 : 8);
+      
+      setDerivedCounts({
+          cars: baseCars + Math.floor(Math.random() * 5),
+          buses: isCritical ? 3 : (Math.random() > 0.7 ? 1 : 0),
+          bikes: isCritical ? 20 : (isWarning ? 12 : 5),
+          trucks: isCritical ? 2 : 0
+      });
+  }, [selectedJunction, selectedId]);
+
   return (
     <div className="dashboard-container">
       {/* Simulation Banner */}
@@ -218,6 +239,7 @@ const Dashboard = () => {
           compact={true}
           override={activeOverride}
           status={selectedJunction?.status}
+          externalCounts={derivedCounts}
         />
 
         <AlertsPanel

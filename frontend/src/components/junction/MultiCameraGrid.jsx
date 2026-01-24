@@ -7,10 +7,10 @@ const MultiCameraGrid = ({ junction, signalState }) => {
     
     // Map direction keys to the standard N/S/E/W used in signal state
     const feeds = [
-        { dir: 'NORTH', code: 'N', label: 'Main Approach', video: junction?.video },
-        { dir: 'SOUTH', code: 'S', label: 'South Exit', video: junction?.video },
-        { dir: 'EAST', code: 'E', label: 'Market Road', video: junction?.video },
-        { dir: 'WEST', code: 'W', label: 'University Rd', video: junction?.video }
+        { dir: 'NORTH', code: 'N', label: 'Main Approach', video: junction?.feeds?.north || junction?.video },
+        { dir: 'SOUTH', code: 'S', label: 'South Exit', video: junction?.feeds?.south || junction?.video },
+        { dir: 'EAST', code: 'E', label: 'Market Road', video: junction?.feeds?.east || junction?.video },
+        { dir: 'WEST', code: 'W', label: 'University Rd', video: junction?.feeds?.west || junction?.video }
     ];
 
     // Effect to handle Play/Pause based on signal state

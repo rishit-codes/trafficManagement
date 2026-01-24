@@ -70,7 +70,7 @@ class VisionModule:
     def __init__(
         self,
         model_path: str = "yolov8n.pt",  # Nano model for speed
-        confidence_threshold: float = 0.4,
+        confidence_threshold: float = 0.6,
         device: str = "cpu"
     ):
         """
@@ -115,11 +115,17 @@ class VisionModule:
             x1, y1, x2, y2 = roi
             frame = frame[y1:y2, x1:x2]
         
-        # Run inference
+        # Run inference with optimizations
+        # - classes: Only detect traffic objects (filters internal NMS)
+        # - imgsz: Fixed size for consistent speed (640 is standard)
         results = self.model(
             frame,
             conf=self.confidence_threshold,
             device=self.device,
+            classes=list(TRAFFIC_CLASSES.keys()),
+            imgsz=640,
+            agnostic_nms=True,  # Critical: Prevent Car+Truck double detection on same object
+            iou=0.5,            # Stricter overlap cleaning for exact counts
             verbose=False
         )[0]
         
