@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
+import { useTraffic } from '../../context/TrafficContext';
 import './ControlPanel.css';
 
 const EmergencyMode = () => {
-  const [active, setActive] = useState(false);
+  const { emergencyMode, activateEmergency, deactivateEmergency } = useTraffic();
+  const active = emergencyMode.active;
   const [type, setType] = useState('ambulance');
   const [showConfirm, setShowConfirm] = useState(false);
 
   const toggleEmergency = () => {
     if (active) {
-      setActive(false); // Deactivate immediately
+      deactivateEmergency();
     } else {
-      setShowConfirm(true); // Confirm before activating
+      setShowConfirm(true);
     }
   };
 
   const confirmActivation = () => {
-    setActive(true);
+    // Hardcoded route logic for demo
+    const routeIds = ['J004', 'J002', 'J003']; // Manjalpur -> Sayaji -> Fatehgunj
+    activateEmergency(type, routeIds);
     setShowConfirm(false);
   };
 
@@ -25,7 +29,7 @@ const EmergencyMode = () => {
         <>
           <div className="control-form-group">
             <label className="control-label">Emergency Type</label>
-            <select 
+            <select
               className="control-select"
               value={type}
               onChange={(e) => setType(e.target.value)}

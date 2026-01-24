@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 
-const LiveCameraPanel = ({ junction }) => {
+const LiveCameraPanel = ({ junction, override }) => {
   const [hasError, setHasError] = useState(false);
-  
+
   // Reset error when junction changes
   useEffect(() => {
     setHasError(false);
@@ -32,25 +32,38 @@ const LiveCameraPanel = ({ junction }) => {
           RECORDED DEMO
         </div>
         <div className="demo-feed-subtitle">
-            This is a recorded simulation feed for pilot demonstration.
+          This is a recorded simulation feed for pilot demonstration.
         </div>
       </div>
 
       <div className="camera-feed-container">
         {!hasError ? (
-          <video
-            className="selected-live-video"
-            src={junction.video}
-            autoPlay
-            loop
-            muted
-            playsInline
-            onError={handleError}
-          />
+          <>
+            <video
+              className="selected-live-video"
+              src={junction.video}
+              autoPlay
+              loop
+              muted
+              playsInline
+              onError={handleError}
+            />
+            {/* OVERRIDE OVERLAY */}
+            {(override?.active && override.type === 'manual') && (
+              <div className="camera-overlay manual-override">
+                ⚠ {override.label}
+              </div>
+            )}
+            {(override?.active && override.type === 'emergency') && (
+              <div className="camera-overlay emergency-override">
+                🚑 EMERGENCY CORRIDOR ACTIVE
+              </div>
+            )}
+          </>
         ) : (
           <div className="video-error-state small">
-             <div className="error-icon">☒</div>
-             <p>Live feed unavailable</p>
+            <div className="error-icon">☒</div>
+            <p>Live feed unavailable</p>
           </div>
         )}
       </div>

@@ -1,13 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import './SignalPhaseVisualizer.css';
 
-const SignalPhaseVisualizer = ({ junctionName, active, loading }) => {
+const SignalPhaseVisualizer = ({ junctionName, active, loading, compact = false, override, status }) => {
     const [timeLeft, setTimeLeft] = useState(45);
     const [phase, setPhase] = useState('GREEN'); // GREEN, YELLOW, RED
     const [aiConfidence, setAiConfidence] = useState(98);
 
+    // Effect: Adjust Confidence based on Status
+    useEffect(() => {
+        if (override?.active) {
+            setAiConfidence(100);
+        } else if (status === 'critical') {
+            setAiConfidence(45); // Low confidence
+        } else if (status === 'warning') {
+            setAiConfidence(72); // Moderate confidence
+        } else {
+            setAiConfidence(98); // High confidence
+        }
+    }, [status, override]);
+
     // Mock animation loop
     useEffect(() => {
+        if (override?.active) {
+            if (override.action && override.action.includes('RED')) setPhase('RED');
+            else if (override.action && override.action.includes('GREEN')) setPhase('GREEN');
+            else if (override.action && override.action.includes('YELLOW')) setPhase('YELLOW');
+            return;
+        }
+
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
                 if (prev <= 1) {
@@ -51,7 +71,9 @@ const SignalPhaseVisualizer = ({ junctionName, active, loading }) => {
                     <div className="confidence-meter">
                         <div className="confidence-bar" style={{ width: `${aiConfidence}%` }}></div>
                     </div>
-                    <div className="confidence-text">{aiConfidence}% Optimal</div>
+                    <div className="confidence-text">
+                        {aiConfidence}% {aiConfidence < 60 ? 'Degraded' : (aiConfidence < 85 ? 'Sub-optimal' : 'Optimal')}
+                    </div>
                 </div>
 
                 <div className="traffic-light-container">

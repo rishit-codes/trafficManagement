@@ -52,9 +52,9 @@
 .map-alerts-row {
   display: flex;
   gap: 24px;
-  min-height: 570px;
-  margin-bottom: 32px;
-  /* Increased height to accommodate map + camera/alerts */
+  min-height: calc(100vh - 180px);
+  /* Fill remaining screen height */
+  margin-bottom: 0;
 }
 
 .map-column {
